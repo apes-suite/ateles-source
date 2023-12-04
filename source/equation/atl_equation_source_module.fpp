@@ -18,7 +18,7 @@
 ! OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 ! **************************************************************************** !
 
-?? include 'treelm/source/deriveMacros.inc'
+?? include 'tem/source/deriveMacros.inc'
 
 !!This module contains the routine for evaluation of the source term for
 !!common for all the equation system. Here the common stuff is done and

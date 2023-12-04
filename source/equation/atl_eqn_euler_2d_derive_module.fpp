@@ -19,7 +19,7 @@
 ! OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 ! **************************************************************************** !
 
-?? include 'treelm/source/deriveMacros.inc'
+?? include 'tem/source/deriveMacros.inc'
 
 !> Routines to derive quantities from the state in the Euler equation system.
 module atl_eqn_euler_2d_derive_module

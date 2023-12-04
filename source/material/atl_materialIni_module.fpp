@@ -22,8 +22,8 @@
 ! OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 ! **************************************************************************** !
 
-?? include 'treelm/source/deriveMacros.inc'
-?? include 'treelm/source/logMacros.inc'
+?? include 'tem/source/deriveMacros.inc'
+?? include 'tem/source/logMacros.inc'
 
 module atl_materialIni_module
   use, intrinsic :: iso_c_binding,    only: c_f_pointer

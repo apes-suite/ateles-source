@@ -19,7 +19,7 @@
 ! OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 ! **************************************************************************** !
 
-?? include 'treelm/source/deriveMacros.inc'
+?? include 'tem/source/deriveMacros.inc'
 !> This module contains types and routines to work with the ateles variable
 !! system. This variable system is build upon the treelm routines, but contains
 !! solver specific enhancements.

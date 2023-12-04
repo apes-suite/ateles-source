@@ -43,7 +43,7 @@ module atl_timer_module
   use tem_timer_module,        only: tem_addTimer, tem_getTimerVal, &
     &                                tem_resetTimer, &
     &                                tem_getMaxTimerVal, tem_getTimerName
-  use tem_revision_module,     only: tem_solver_revision
+  use soi_revision_module,     only: soi_solver_revision
   use tem_general_module,      only: tem_general_type
   use treelmesh_module,        only: treelmesh_type
   use tem_timer_module,        only: tem_timer_type, tem_appendTimers
@@ -475,7 +475,7 @@ contains
       write(output, '(1x,a13,1x,a20,1x,i8,1x,i8,1x,i12,1x,' &
         &           // 'i15,1x,i12,1x,i12,1x,i12,1x,en12.3,1x,en12.3,' &
         &           // '1x,i12,1x,en12.3)') &
-        &   trim(tem_solver_revision), &
+        &   trim(soi_solver_revision), &
         &   trim(general%solver%simName), &
         &   general%proc%comm_size, &
         &   general%proc%nThreads, &
