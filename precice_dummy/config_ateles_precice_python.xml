@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+
+<precice-configuration>
+
+   <log-filter target="info" component="" switch="on" />
+   <log-filter target="debug" component="" switch="off" />
+   <!--<log-filter target="debug" component="precice::impl::SolverInterfaceImpl" switch="on" />-->
+    <log-output column-separator=" | " log-time-stamp="no" 
+                log-time-stamp-human-readable="no" log-machine-name="no" 
+                log-message-type="no" log-trace="yes"/>
+   
+   <solver-interface dimensions="3" restart-mode="off" geometry-mode="off">
+   
+      <data:vector name="Pressure"  />
+  <!--     <data:vector name="Velocities"  />
+  -->
+   
+      <mesh name="AcousticSurface">
+         <use-data name="Pressure" />
+ <!--        <use-data name="Velocities" />
+ -->
+      </mesh>
+      
+<!--      <geometry:builtin-cuboid of-mesh="AcousticSurface">
+         <discretization-width value="1.0" />
+         <offset value="-1.0; -1.0; -1.0" />
+         <length value="2; 2; 2" />
+      </geometry:builtin-cuboid>     
+-->
+      <participant name="Dummy">
+         <use-mesh name="AcousticSurface"/> 
+<!--         <use-mesh name="AcousticSurface"  provide="no"/>  -->
+         <export:vtk/>
+         <write-data  name="Pressure"   mesh="AcousticSurface" /> 
+<!--         <write-data  name="Velocities" mesh="AcousticSurface" /> -->
+
+<!-- action for pyhton script to set data -->
+
+         <action:python mesh="AcousticSurface" timing="on-exchange-prior">
+
+               <!-- TAG path
+                        Directory path to Python module, i.e. script file.
+                        (can occur 0..1 times)
+                    ATTR name: -->
+               <path name="/home/UNISIEGEN/gk780/lib/precice_old/src/action/"/> 
+
+               <!-- TAG module
+                        File name of Python module, i.e. script file.
+                        (can occur 1 times)
+                    ATTR name: -->
+               <module name="setdata"/>
+
+              <!-- TAG source-data
+                        Source data to be read is handed to the Python module.
+                        (can occur 0..1 times)
+                    ATTR name: -->
+            <!--   <source-data name="sourceData"/> -->
+
+               <!-- TAG target-data
+                        Target data to be read and written to is handed to the
+                        Python module.
+                        (can occur 0..1 times)
+                    ATTR name: -->
+                <target-data name="Pressure"/> 
+
+          </action:python>                     
+      </participant>
+      
+      <participant name="Ateles">
+         <use-mesh name="AcousticSurface" />
+         <mapping:nearest-projection direction="read" mesh="AcousticSurface"
+                  constraint="consistent" timing="incremental" />
+         <read-data name="Pressure"      mesh="AcousticSurface" />
+<!--         <read-data name="Velocities"    mesh="AcousticSurface" />
+-->
+      </participant>
+      
+<!--      <communication:files from="Dummy" to="Ateles" /> -->
+      <communication:sockets from="Dummy"
+         to="Ateles"/>
+      
+      <coupling-scheme:explicit> 
+         <participants first="Dummy" second="Ateles" /> 
+         <max-timesteps value="5" />
+         <timestep-length value="0.00002" />
+         <exchange data="Pressure"    mesh="AcousticSurface" from="Dummy" />
+<!--         <exchange data="Velocities"  mesh="AcousticSurface" from="Dummy" /> -->
+      </coupling-scheme:explicit>      
+
+   
+   </solver-interface>
+               
+</precice-configuration>

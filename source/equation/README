@@ -1,0 +1,16 @@
+This equation directory contains the descriptions for the various supported
+equation systems of the ateles solver.
+
+The general structure for the equation system in the solver is given by
+atl_equation_module, which is supported by a set of routines acting on this
+data structure given in atl_eqn_helpers_module.
+All the modules are supposed to have the atl_eqn_ prefix to easily identify
+equation specific things.
+
+Each specific equation system should get its own descriptive module and in
+addition some supporting helpers module.
+The variables of the different equation systems are defined in
+atl_eqn_*_var_module.
+
+Routines to calculate derived quantities of the different equation systems are
+defined in atl_eqn_*_derive_module.

@@ -1,0 +1,42 @@
+-- Use the configuration of the original simulation run.
+require 'ateles'
+
+-- Set the restart data to harvest.
+restart.read = '$!file!$'
+
+
+-- Subsampling for tracking, define a ply_sampling table to activate subsampling
+-- for all tracking objects (except those with use_get_point).
+-- Subsampling (for subresoloved color information):
+ply_sampling = {
+  nlevels = 3,    -- maximal level to use in subsampling
+                  -- defaults to 0, which deactivates subsampling
+  --method  = 'fixed' -- method to use for subsampling
+                      -- currently only 'fixed' is implemented,
+                      -- which will refine all elements by
+                      -- nlevels
+                      -- 'fixed' is also the default, thus it
+                      -- is sufficient to only provide nlevels
+}
+
+-- Example tracking to generate vtk files:
+tracking = {
+  {
+    label = 'visu',
+    variable = {'displacement_field', 'magnetic_field'},
+    shape = {
+      kind = 'global'
+    },
+--    time_control = {
+--      min = {
+--        iter = 0
+--      },
+--      max = sim_control.time_control.max,
+--      interval = sim_control.time_control.max
+--    },
+    folder = '$!out!$',
+    output = {
+      format = 'vtk'
+    }
+  }
+}

@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+
+<precice-configuration>
+
+   <log-filter target="info" component="" switch="on" />
+   <log-filter target="debug" component="" switch="off" />
+   <!--<log-filter target="debug" component="precice::impl::SolverInterfaceImpl" switch="on" />-->
+    <log-output column-separator=" | " log-time-stamp="no" 
+
+                log-time-stamp-human-readable="no" log-machine-name="no" 
+                log-message-type="no" log-trace="yes"/>
+   
+   <solver-interface dimensions="3" restart-mode="off" geometry-mode="off">
+   
+      <data:scalar name="Density"  />
+      <data:vector name="Velocities"  />
+      <data:scalar name="Pressure"  />
+   
+      <mesh name="AcousticSurface">
+         <use-data name="Density" />
+         <use-data name="Velocities" />
+         <use-data name="Pressure" />
+      </mesh>
+      
+      <geometry:builtin-cuboid of-mesh="AcousticSurface">
+         <discretization-width value="1.0" />
+         <offset value="-1.0; -1.0; -1.0" />
+         <length value="2; 2; 2" />
+      </geometry:builtin-cuboid>     
+
+      <participant name="Dummy">
+         <use-mesh name="AcousticSurface" /> 
+         <export:vtk timestep-interval="1"/>
+         <write-data  name="Density"   mesh="AcousticSurface" /> 
+         <write-data  name="Velocities"   mesh="AcousticSurface" /> 
+         <write-data  name="Pressure"   mesh="AcousticSurface" /> 
+
+         <action:python mesh="AcousticSurface" timing="on-exchange-prior">
+               <module name="SetDensity"/>
+               <target-data name="Density"/> 
+          </action:python>                     
+
+         <action:python mesh="AcousticSurface" timing="on-exchange-prior">
+               <module name="SetVelocities"/>
+               <target-data name="Velocities"/> 
+          </action:python>                     
+
+         <action:python mesh="AcousticSurface" timing="on-exchange-prior">
+               <module name="SetPressure"/>
+               <target-data name="Pressure"/> 
+          </action:python>                     
+
+      </participant>
+      
+      <participant name="Ateles">
+         <use-mesh name="AcousticSurface" />
+         <mapping:nearest-neighbor direction="read" mesh="AcousticSurface"
+                  constraint="consistent" timing="initial" />
+         <read-data name="Density"      mesh="AcousticSurface" />
+         <read-data name="Velocities"      mesh="AcousticSurface" />
+         <read-data name="Pressure"      mesh="AcousticSurface" />
+         <export:vtk timestep-interval="1"/>
+      </participant>
+      
+      <communication:sockets from="Dummy"   to="Ateles"/>
+      
+      <coupling-scheme:explicit> 
+         <participants first="Dummy" second="Ateles" /> 
+         <max-timesteps value="100" />
+         <timestep-length value="0.0001" />
+         <exchange data="Density"    mesh="AcousticSurface" from="Dummy" />
+         <exchange data="Velocities"    mesh="AcousticSurface" from="Dummy" />
+         <exchange data="Pressure"    mesh="AcousticSurface" from="Dummy" />
+      </coupling-scheme:explicit>      
+
+   
+   </solver-interface>
+               
+</precice-configuration>

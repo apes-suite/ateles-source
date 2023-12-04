@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+
+<precice-configuration>
+
+   <log-filter target="info" component="" switch="on" />
+   <log-filter target="debug" component="" switch="off" />
+   <!--<log-filter target="debug" component="precice::impl::SolverInterfaceImpl" switch="on" />-->
+    <log-output column-separator=" | " log-time-stamp="no" 
+
+                log-time-stamp-human-readable="no" log-machine-name="no" 
+                log-message-type="no" log-trace="yes"/>
+   
+   <solver-interface dimensions="3" restart-mode="off" geometry-mode="off">
+   
+      <data:scalar name="Density_in"  />
+      <data:scalar name="Density_out"  />
+      <data:vector name="Velocities_in"  />
+      <data:vector name="Velocities_out"  />
+      <data:scalar name="Pressure_in"  />
+      <data:scalar name="Pressure_out"  />
+   
+      <mesh name="AcousticSurface">
+         <use-data name="Density_in" />
+         <use-data name="Velocities_in" />
+         <use-data name="Pressure_in" />
+         <use-data name="Density_out" />
+         <use-data name="Velocities_out" />
+         <use-data name="Pressure_out" />
+      </mesh>
+      
+      <geometry:builtin-cuboid of-mesh="AcousticSurface">
+         <discretization-width value="1.0" />
+         <offset value="-1.0; -1.0; -1.0" />
+         <length value="2; 2; 2" />
+      </geometry:builtin-cuboid>     
+
+      <participant name="Dummy">
+         <use-mesh name="AcousticSurface" /> 
+         <export:vtk timestep-interval="1"/>
+         <write-data  name="Density_in"   mesh="AcousticSurface" /> 
+         <write-data  name="Velocities_in"   mesh="AcousticSurface" /> 
+         <write-data  name="Pressure_in"   mesh="AcousticSurface" /> 
+
+         <action:python mesh="AcousticSurface" timing="on-exchange-prior">
+               <module name="SetDensity"/>
+               <target-data name="Density_in"/> 
+          </action:python>                     
+
+         <action:python mesh="AcousticSurface" timing="on-exchange-prior">
+               <module name="SetVelocities"/>
+               <target-data name="Velocities_in"/> 
+          </action:python>                     
+
+         <action:python mesh="AcousticSurface" timing="on-exchange-prior">
+               <module name="SetPressure"/>
+               <target-data name="Pressure_in"/> 
+          </action:python>                     
+
+      </participant>
+      
+      <participant name="Ateles">
+         <use-mesh name="AcousticSurface" />
+         <mapping:nearest-neighbor direction="read" mesh="AcousticSurface"
+                  constraint="consistent" timing="initial" />
+         <mapping:nearest-neighbor direction="write" mesh="AcousticSurface"
+                  constraint="consistent" timing="initial" />
+         <read-data  name="Density_in"    mesh="AcousticSurface" />
+         <write-data name="Density_out"    mesh="AcousticSurface" /> 
+         <read-data  name="Velocities_in" mesh="AcousticSurface" />
+         <write-data name="Velocities_out" mesh="AcousticSurface" /> 
+         <read-data  name="Pressure_in"   mesh="AcousticSurface" />
+         <write-data name="Pressure_out"   mesh="AcousticSurface" /> 
+         <export:vtk timestep-interval="1"/>
+      </participant>
+      
+      <communication:sockets from="Dummy"   to="Ateles"/>
+      
+      <coupling-scheme:explicit> 
+         <participants first="Dummy" second="Ateles" /> 
+         <max-timesteps value="100" />
+         <timestep-length value="0.0001" />
+         <exchange data="Density_in"    mesh="AcousticSurface" from="Dummy" />
+         <exchange data="Velocities_in"    mesh="AcousticSurface" from="Dummy" />
+         <exchange data="Pressure_in"    mesh="AcousticSurface" from="Dummy" />
+         <exchange data="Density_out"    mesh="AcousticSurface" from="Ateles" />
+         <exchange data="Velocities_out"    mesh="AcousticSurface" from="Ateles" />
+         <exchange data="Pressure_out"    mesh="AcousticSurface" from="Ateles" />
+      </coupling-scheme:explicit>      
+
+   
+   </solver-interface>
+               
+</precice-configuration>
