@@ -44,6 +44,7 @@ def configure(conf):
     conf.setenv('')
     conf.setenv('ford', conf.env)
     conf.env.ford_mainpage = 'mainpage.md'
+    conf.env.fordurl_atl = 'https://geb.inf.tu-dresden.de/doxy/ateles/'
 
 
 def build(bld):
@@ -104,14 +105,46 @@ def build(bld):
                            'PRECICE','MPICXX', 'PYLIB', 'STDCXX', 'RT', 'ZLIB', 'PETSC',
                            'BOOST_system', 'BOOST_filesystem'],
                 target = 'atl_harvesting')
-    else:
 
-       bld(
-           features = 'coco',
-           source = atl_ppsources)
+    else:
+      from waflib.extras.make_fordoc import gendoc
+
+      app = bld(
+        features = 'includes coco',
+        source   = atl_ppsources)
+
+
+      if not bld.env.fordonline:
+        atl_preprocessed.append(bld.env.fordext_aotus)
+        atl_preprocessed.append(bld.env.fordext_tem)
+
+      tgt = bld.path.get_bld().make_node('docu/modules.json')
+      bld.env.fordext_atl = tgt
+
+      gd_args = {
+          "rule" : gendoc,
+          "src_paths" : [bld.path.find_node('source').abspath(),
+                       bld.path.parent.find_node('polynomials').abspath(),
+                       bld.path.parent.get_bld().abspath()
+                      ],
+          "target" : tgt,
+          "mainpage" : os.path.join(bld.top_dir, 'atl', 'mainpage.md')
+      }
+
+      if bld.env.fordonline:
+          bld( **gd_args,
+               extern_urls = ['aoturl = {0}'.format(bld.env.fordurl_aotus),
+                              'temurl = {0}'.format(bld.env.fordurl_tem)
+                             ]
+          )
+      else:
+          bld( **gd_args,
+               extern = ['aoturl = {0}'.format(bld.env.fordext_aotus),
+                         'temurl = {0}'.format(bld.env.fordext_tem)
+                        ],
+          )
 
 def compile_atl(bld, ateles_sources):
-    from waflib import Logs
     from waflib.extras.utest_results import utests
 
     bld(
