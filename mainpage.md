@@ -1,6 +1,7 @@
 project: Ateles
 summary: Discontinuous Galerkin solver with explicit time stepping.
-project_website: https://apes.osdn.io/pages/ateles
+project_website: https://geb.inf.tu-dresden.de/pages/ateles.html
+project_github: https://github.com/apes-suite/ateles.git
 src_dir: source/
 src_dir: build/ford
 src_dir: polynomials/source
@@ -27,7 +28,7 @@ md_extensions: markdown.extensions.toc
 
 Ateles implements a modal/nodal Discontinuous Galerkin scheme on top of
 [TreElm](|temurl|/index.html) data structures.
-The dedicated mesh generator [Seeder](https://apes.osdn.io/pages/seeder.html)
+The dedicated mesh generator [Seeder](https://geb.inf.tu-dresden.de/pages/seeder.html)
 provides the possibility to create meshes for the solver.
 Various equation systems are supported, each with their dedicated optimized
 kernel.
@@ -51,19 +52,19 @@ various supported equation systems.
 
 ## Downloading Ateles
 
-We use Mercurial (hg), an open source distributed version control system,
-for the APES projects.
-To obtain the
-[sources of Ateles](https://osdn.net/projects/apes/scm/hg/ateles/), you need to
-have Mercurial available.
-Mercurial may be downloaded from the
-[official website](https://www.mercurial-scm.org)
-or already available through some packaging system for your machine.
+Ateles is provided as source code
+[on github](https://github.com/apes-suite/ateles.git).
+
+It can be obtained by checking it out with git:
+
+```sh
+git clone --recurse-submodules https://github.com/apes-suite/ateles.git
+```
 
 Cloning the Ateles repository will also get you the
-[TreElm library](https://osdn.net/projects/apes/scm/hg/treelm/)
-as a subrepository in the directory `ateles/treelm`.
+[TreElm library](https://github.com/apes-suite/tem-source.git)
+as a submodule in the directory `ateles/tem`.
 Note that you might want to get other supporting tools from the
-[APES framework](https://osdn.net/projects/apes/)
+[APES framework](https://github.com/apes-suite)
 or the complete framework itself to make use of other solvers for your
 simulations.

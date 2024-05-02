@@ -16,7 +16,7 @@ to the MPI wrapper on your machine, typically `export FC=mpif90`.
 With this variable set, you can configure and compile the code by typing
 
 ```bash
-./waf configure build
+bin/waf configure build
 ```
 
 Now, an executable called ateles got created in the folder `ateles/build/`.
@@ -24,13 +24,13 @@ The two steps, configuration and building might also be done separately.
 Configuration is done with the folowing command
 
 ```bash
-./waf configure
+bin/waf configure
 ```
 
 whereas the command
 
 ```bash
-./waf distclean
+bin/waf distclean
 ```
 
 is used to clean the current configuration as well as most build output.
@@ -39,7 +39,7 @@ If you want to clean only the build output but keep the configuration in place,
 use
 
 ```bash
-./waf clean
+bin/waf clean
 ```
 
 To keep the configuration tidy, it is recommended to clean it before
@@ -51,20 +51,20 @@ For that the `--fftw_path=$FFTWDIR/` option
 in the configuration process has to be set
 
 ```bash
-./waf distclean configure --fftw_path=$FFTWDIR/
+bin/waf distclean configure --fftw_path=$FFTWDIR/
 ```
 
 To compile the code, type
 
 ```bash
-./waf build
+bin/waf build
 ```
 
 You can also do a faster compilation without doing unit tests
 by building only the exectubale with the command
 
 ```bash
-./waf build --target=ateles
+bin/waf build --target=ateles
 ```
 
 In the compilation described above you will obtain
@@ -73,13 +73,30 @@ If you would like to get an executable
 that is suitable for debugging, you can run
 
 ```bash
-./waf debug
+bin/waf debug
 ```
 
 This will produce the executable with debugging symbols in `build/debug`.
 
 Usually the project needs to be configured only once on a system,
 but you might recompile it several times.
+
+## Generating this documentation
+
+This documentation is generated with FORD. To create it you need to
+have that tool [installed](https://github.com/Fortran-FOSS-Programmers/ford#installation).
+
+With FORD installed, this documentation can be generated with:
+
+```bash
+bin/waf docu
+```
+
+The generated documentation is then found in
+
+```bash
+bin/waf build/ford/atl/docu
+```
 
 ## Running
 
