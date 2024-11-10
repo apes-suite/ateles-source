@@ -306,8 +306,8 @@ contains
         write(logunit(1),*) 'ERROR: Tracking does not support different' &
           &                 // ' polynomial degrees!'
         write(logunit(1),*) 'See:'
-        write(logunit(1),*) 'https://geb.sts.nt.uni-siegen.de/collab/issues/' &
-          &                 // '1774'
+        write(logunit(1),*) 'https://github.com/apes-suite/ateles-source/' &
+          &                 // 'issues/6'
         write(logunit(1),*) 'Stopping...'
         call tem_abort()
       end if

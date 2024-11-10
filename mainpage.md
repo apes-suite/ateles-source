@@ -1,13 +1,13 @@
 project: Ateles
 summary: Discontinuous Galerkin solver with explicit time stepping.
-project_website: https://geb.inf.tu-dresden.de/pages/ateles.html
+project_website: https://apes-suite.github.io/pages/ateles.html
 project_github: https://github.com/apes-suite/ateles.git
 src_dir: source/
 src_dir: build/ford
 src_dir: polynomials/source
 exclude_dir: build/ford/treelm
-external: aoturl = https://geb.inf.tu-dresden.de/doxy/aotus
-external: temurl = https://geb.inf.tu-dresden.de/doxy/treelm
+external: aoturl = https://apes-suite.github.io/aotus
+external: temurl = https://apes-suite.github.io/treelm
 output_dir: docu
 page_dir: doc_pages
 copy_subdir: media
@@ -28,7 +28,7 @@ md_extensions: markdown.extensions.toc
 
 Ateles implements a modal/nodal Discontinuous Galerkin scheme on top of
 [TreElm](|temurl|/index.html) data structures.
-The dedicated mesh generator [Seeder](https://geb.inf.tu-dresden.de/pages/seeder.html)
+The dedicated mesh generator [Seeder](https://apes-suite.github.io/pages/seeder.html)
 provides the possibility to create meshes for the solver.
 Various equation systems are supported, each with their dedicated optimized
 kernel.

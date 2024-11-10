@@ -20,5 +20,5 @@ completing this procedure.
 -   [Postprocessing with atl_harvesting](postprocessing.html)
 
 To get familiar with preprocessing using Seeder click
-[here](https://geb.sts.nt.uni-siegen.de/CodeDox/seeder/index.html)
+[here](https://apes-suite.github.io/seeder/index.html)
 to visit the documentation with its tutorials.
