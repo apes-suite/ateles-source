@@ -44,7 +44,7 @@ def configure(conf):
     conf.setenv('')
     conf.setenv('ford', conf.env)
     conf.env.ford_mainpage = 'mainpage.md'
-    conf.env.fordurl_atl = 'https://geb.inf.tu-dresden.de/doxy/ateles/'
+    conf.env.fordurl_atl = 'https://apes-suite.github.io/ateles/'
 
 
 def build(bld):

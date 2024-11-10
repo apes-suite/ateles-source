@@ -15,7 +15,7 @@ Documentation
 
 The documentation is generated with
 [FORD](https://github.com/Fortran-FOSS-Programmers/ford), and
-[available online](https://geb.inf.tu-dresden.de/doxy/ateles/index.html).
+[available online](https://apes-suite.github.io/ateles/index.html).
 You can also generate the documentation with `waf gendoxy`, configuration
 of FORD is detailed in `mainpage.md`.
 
