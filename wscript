@@ -79,13 +79,14 @@ def build(bld):
         compile_atl(bld, ateles_sources)
         bld(
             features = 'fc fcprogram',
+            name = 'ateles',
             source = 'source/ateles.f90',
             use     = ['atl_objs', 'tem_objs', 'ply_objs', 'aotus', bld.env.distcrc,
                        bld.env.mpi_mem_c_obj, 'fftw_mod_obj', 'NAG',
                        'fxtp_wrap_obj', 'fxtp_obj', 'fxtp_wrapper',
                        'PRECICE','MPICXX', 'PYLIB', 'STDCXX', 'RT', 'ZLIB', 'PETSC',
                        'BOOST_system', 'BOOST_filesystem'],
-            target = 'ateles')
+            target = bld.path.parent.find_or_declare('ateles'))
         bld(
             features = 'fc fcprogram',
             source = 'peons/solve_euler_riemann.f90',
@@ -98,13 +99,14 @@ def build(bld):
         if bld.env.build_hvs and not bld.options.no_harvesting:
             bld(
                 features = 'fc fcprogram',
+                name = 'atl_harvesting',
                 source = 'source/atl_harvesting/atl_harvesting.f90',
                 use     = ['atl_objs', 'tem_objs', 'ply_objs', 'aotus', bld.env.distcrc,
                            bld.env.mpi_mem_c_obj, 'fftw_mod_obj', 'NAG', 'base64',
                            'fxtp_wrap_obj', 'fxtp_obj', 'fxtp_wrapper',
                            'PRECICE','MPICXX', 'PYLIB', 'STDCXX', 'RT', 'ZLIB', 'PETSC',
                            'BOOST_system', 'BOOST_filesystem'],
-                target = 'atl_harvesting')
+                target = bld.path.parent.find_or_declare('atl_harvesting'))
 
     else:
       from waflib.extras.make_fordoc import gendoc
