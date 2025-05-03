@@ -20,7 +20,6 @@ display: private
 sort: permission
 source: false
 author: University of Siegen
-title: Mainpage
 print_creation_date: True
 md_extensions: markdown.extensions.toc
 
