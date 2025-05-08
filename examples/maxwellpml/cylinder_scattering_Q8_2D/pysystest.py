@@ -23,7 +23,7 @@ class PySysTest(ApesHelper, pysys.basetest.BaseTest):
         self.deleteFile(trackfile)
 
     def execute(self):
-        atlrun = self.apes.runAteles(np = 1)
+        atlrun = self.apes.runAteles(np = 5)
 
     def validate(self):
         self.apes.checkAtlLog()
