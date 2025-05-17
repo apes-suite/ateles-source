@@ -35,7 +35,6 @@ program atl_state_der_init_test
 
   ! Init the Treelm environment, needed to init the log Unit
   call tem_start(codename = 'Ateles unit test', &
-    &            version  = 'utest',            &
     &            general  = params%general      )
 
   allocate(kerneldata%state_der(x_l:x_u, y_l:y_u, z_l:z_u))

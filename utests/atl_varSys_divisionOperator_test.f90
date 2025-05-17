@@ -202,7 +202,6 @@ program atl_varSys_divisionOperatorByElement_test
   ! Init the Treelm environment
   call tem_start(                                        &
     & 'atl_varSys_divisionOperator_test unit test', &
-    & 'utest',                                           &
     & general                                            )
 
   ! get the level pointer for single level run

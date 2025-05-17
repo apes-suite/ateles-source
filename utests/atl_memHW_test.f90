@@ -28,7 +28,6 @@ program atl_memHW_test
   type(tem_general_type) :: tgen
 
   call tem_start(codename = 'memHWM_test', &
-    &            version  = 'v1',          &
     &            general  = tgen           )
 
   mem = my_status_int('VmHWM:')

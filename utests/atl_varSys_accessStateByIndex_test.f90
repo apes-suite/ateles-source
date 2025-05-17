@@ -174,7 +174,7 @@ program atl_varSys_stateVarByIndex_test
     & //'}'
 
   ! Init the Treelm environment
-  call tem_start('atl_varSys_accessState_byIndex_test unit test', 'utest', general)
+  call tem_start('atl_varSys_accessState_byIndex_test unit test', general)
 
   !*****************************************************************************
   write(logUnit(3), *) 'Initialize the mesh'

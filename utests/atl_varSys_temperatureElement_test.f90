@@ -181,7 +181,7 @@ program atl_varSys_temperatureByElement_test
     & //'}'
 
   ! Init the Treelm environment
-  call tem_start('atl_varSys_temperatureElement_test unit test', 'utest', general)
+  call tem_start('atl_varSys_temperatureElement_test unit test', general)
 
   !*****************************************************************************
   write(logUnit(3), *) 'Initialize the mesh'

@@ -31,7 +31,6 @@ implicit none
   ! Init the Treelm environment, needed to init the log Unit
   ! Init the Treelm environment, needed to init the log Unit
   call tem_start( codeName = 'MODG_Kernel_test', &
-    &             version  = 'utest',            &
     &             general  = params%general      )
 
   call atl_modg_kernel_utests(passed)

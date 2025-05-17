@@ -208,7 +208,6 @@ program atl_varSys_gradientOperatorByElement_test
   ! Init the Treelm environment
   call tem_start(                         &
     & 'atl_varSys_gradientOperator_test', &
-    & 'utest',                            &
     & general                             )
 
   !*****************************************************************************
