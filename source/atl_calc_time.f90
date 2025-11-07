@@ -793,6 +793,7 @@ contains
     max_velocity =  maxval( abs(timestep%euler%maxVel(:))           &
       &                       + abs(timestep%euler%speedOfSound(:)) )
 
+    !! TODO: distinguish Q and P polynomials here !!
     disc_fact = 0.5_rk * length / (nPoly**2)
 
     ! Calculate timestep from CFL-condition for the convective part

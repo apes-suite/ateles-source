@@ -218,9 +218,10 @@ contains
       if (equation%nDerivatives > 0) then
         ! get the cfl number (for the viscous part of the equation)
         call aot_get_val(L = conf, thandle = control_table, &
-          &              key = 'cfl_visc', &
-          &              val = me%control%cfl_visc, &
-          &              ErrCode = iError )
+          &              key = 'cfl_visc',                  &
+          &              val = me%control%cfl_visc,         &
+          &              default = me%control%cfl,          &
+          &              ErrCode = iError                   )
         if (iError.ne.0) then
           write(logUnit(1),*) 'ERROR in atl_global_time_integration_load:'
           write(logUnit(1),*) 'No cfl_visc number specified, stopping ...'
