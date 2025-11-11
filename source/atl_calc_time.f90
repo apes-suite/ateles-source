@@ -422,11 +422,11 @@ contains
         &                          nPoly  = nPoly                        )
 
     case('heat_1d','heat_2d','heat')
-      call calc_timestep_heat_cube_1d( cfl      = cfl_visc, & ! in
-        &                              length   = length,   & ! in
-        &                              dt       = dt,       & ! out
-        &                              equation = equation, & ! in
-        &                              nPoly    = nPoly     )
+      call calc_timestep_heat_cube( cfl      = cfl_visc, & ! in
+        &                           length   = length,   & ! in
+        &                           dt       = dt,       & ! out
+        &                           equation = equation, & ! in
+        &                           nPoly    = nPoly     )
 
     case default
       write(logUnit(1),*) 'Equation kind: ' // trim(equation%eq_kind)
@@ -444,7 +444,7 @@ contains
   !! simulation.
   !!
   !! This subroutine calculates the timstep according to the CFL condition.
-  subroutine calc_timestep_heat_cube_1d(cfl, length, dt, equation, nPoly )
+  subroutine calc_timestep_heat_cube(cfl, length, dt, equation, nPoly )
     ! -------------------------------------------------------------------- !
     !> CFL number
     real(kind=rk), intent(in)  :: cfl
@@ -463,9 +463,9 @@ contains
     npow = nPoly
     npow = npow**4
     ! Calculate timestep from CFL-condition
-    dt = 0.07* (cfl * length * length) / (equation%heat%k*nPow)
+    dt = (cfl * length * length) / (equation%heat%k*nPow)
 
-  end subroutine calc_timestep_heat_cube_1d
+  end subroutine calc_timestep_heat_cube
   ! ************************************************************************ !
 
 
