@@ -91,7 +91,7 @@ scheme = {
     steps = 2,
     control = {
       name = 'cfl',
-      cfl  = 0.6*(2*degree+1)^2/(2*(degree+1)^2)
+      cfl = 0.9
     }
   },
   stabilization = {
