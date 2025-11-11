@@ -260,22 +260,20 @@ contains
     integer :: nPoly
     ! -------------------------------------------------------------------- !
 
-    nPoly = 0 ! default value
+    nPoly = 0 ! Ensure nPoly is set
     ! Get the polynomial nPoly
     select case(scheme%scheme)
     case(atl_modg_scheme_prp)
-      nPoly = scheme%modg%maxPolyDegree + 1
       if (scheme%modg%basisType == Q_space) then
         nPoly = scheme%modg%maxPolyDegree*3
       else
         nPoly = scheme%modg%maxPolyDegree
       end if
     case(atl_modg_2d_scheme_prp)
-      nPoly = scheme%modg_2d%maxPolyDegree + 1
       if (scheme%modg_2d%basisType == Q_space) then
-        nPoly = scheme%modg%maxPolyDegree*2
+        nPoly = scheme%modg_2d%maxPolyDegree*2
       else
-        nPoly = scheme%modg%maxPolyDegree
+        nPoly = scheme%modg_2d%maxPolyDegree
       end if
     case(atl_modg_1d_scheme_prp)
       nPoly = scheme%modg_1d%maxPolyDegree
@@ -578,7 +576,7 @@ contains
 
     max_vel = sqrt(sum(vel**2))
     ! Calculate timestep from CFL-condition
-    dt =  cfl * length / abs(max_vel + SpeedOfSound) / 2._rk / (nPoly**2)
+    dt =  cfl * length / abs(max_vel + SpeedOfSound) / (nPoly**2)
 
   end subroutine calc_timestep_linearEuler_cube
   ! ************************************************************************ !
@@ -612,7 +610,7 @@ contains
 
     max_vel = sqrt(sum(vel**2))
     ! Calculate timestep from CFL-condition
-    dt =  cfl * length / abs(max_vel + SpeedOfSound) / 2._rk / (nPoly**2)
+    dt =  cfl * length / abs(max_vel + SpeedOfSound) / (nPoly**2)
 
   end subroutine calc_timestep_linearEuler_2d_cube
   ! ************************************************************************ !
@@ -646,7 +644,7 @@ contains
 
     max_vel = sqrt(sum(vel**2))
     ! Calculate timestep from CFL-condition
-    dt =  cfl * length / abs(max_vel + SpeedOfSound) / 2._rk / (nPoly**2)
+    dt =  cfl * length / abs(max_vel + SpeedOfSound) / (nPoly**2)
 
   end subroutine calc_timestep_acoustic_2d_cube
   ! ************************************************************************ !
@@ -680,7 +678,7 @@ contains
 
     max_vel = sqrt(sum(vel**2))
     ! Calculate timestep from CFL-condition
-    dt =  cfl * length / abs(max_vel + SpeedOfSound) / 2._rk / (nPoly**2)
+    dt =  cfl * length / abs(max_vel + SpeedOfSound) / (nPoly**2)
 
   end subroutine calc_timestep_acoustic_cube
   ! ************************************************************************ !
@@ -712,7 +710,7 @@ contains
       & abs(timestep%euler%maxVel(:)) + abs(timestep%euler%speedOfSound(:)) )
 
     ! Calculate timestep from CFL-condition
-    dt =  cfl * length / max_velocity / 2._rk / (nPoly**2)
+    dt =  cfl * length / max_velocity / (nPoly**2)
 
   end subroutine calc_timestep_flow_cube
   ! ************************************************************************ !
@@ -738,7 +736,7 @@ contains
     max_velocity =  maxval( abs(timestep%LoclinEuler%meanVel(:))          &
       &                       + abs(timestep%LoclinEuler%speedOfSound(:)) )
     ! Calculate timestep from CFL-condition
-    dt =  cfl * length / max_velocity / 2._rk / (nPoly**2)
+    dt =  cfl * length / max_velocity / (nPoly**2)
 
   end subroutine calc_timestep_flow_cube_mod
   ! ************************************************************************ !
@@ -769,7 +767,7 @@ contains
     max_velocity =  maxval( abs(timestep%euler_2d%maxVel(:))           &
       &                       + abs(timestep%euler_2d%speedOfSound(:)) )
     ! Calculate timestep from CFL-condition
-    dt =  cfl * length / max_velocity / 2._rk / (nPoly**2)
+    dt =  cfl * length / max_velocity / (nPoly**2)
 
   end subroutine calc_timestep_flow_cube_2d
   ! ************************************************************************ !
@@ -857,7 +855,7 @@ contains
     max_velocity =  maxval( abs(timestep%euler_2d%maxVel(:))           &
       &                       + abs(timestep%euler_2d%speedOfSound(:)) )
 
-    disc_fact = 0.5_rk * length / (nPoly**2)
+    disc_fact = length / (nPoly**2)
 
     ! Calculate timestep from CFL-condition for the convective part
     ! of the Navier-Stokes equations
@@ -899,7 +897,7 @@ contains
       &                       + abs(timestep%euler_1d%speedOfSound(:)) )
 
     ! Calculate timestep from CFL-condition
-    dt =  cfl * length / max_velocity / 2._rk / (nPoly**2)
+    dt =  cfl * length / max_velocity / (nPoly**2)
 
   end subroutine calc_timestep_flow_cube_1d
   ! ************************************************************************ !
