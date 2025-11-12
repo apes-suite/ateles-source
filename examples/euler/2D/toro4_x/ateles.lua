@@ -7,13 +7,13 @@
 
 -- The initial conditions for the Riemann problem
 -- ... left state
-rho_l = 1.0
+rho_l = 0.125
 u_l = 0.0
 p_l = 0.1
 -- ... right state
-rho_r = 1.0
+rho_r = 2.0
 u_r = 0.0
-p_r = 5.0
+p_r = 2.0
 
 -- global simulation options
 simulation_name = 'toro4_euler_modg_2d'
@@ -34,7 +34,7 @@ mesh = {
   predefined = 'line_bounded',
   origin = {0, 0, 0},
   length = channel_length,
-  element_count = 40
+  element_count = 80
 }
 
 -- Equation definitions --
@@ -95,9 +95,14 @@ scheme = {
     }
   },
   stabilization = {
-    name = 'cons_positivity_preserv',
-    eps  = 1.0e-6
-  }
+    { name = 'spectral_viscosity',
+      alpha = 36,
+      order = 30
+    },
+    { name = 'cons_positivity_preserv',
+      eps = 1.0e-6
+    }
+  },
 }
 
 projection = {
