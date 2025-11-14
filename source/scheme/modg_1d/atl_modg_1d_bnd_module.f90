@@ -137,11 +137,6 @@ contains
     ! There is just one direction in 1D
     iDir = 1
 
-    !>@todo add other variables to private if necessary
-    !!!!OMP PARALLEL &
-    !!!!OMP PRIVATE(iBC, iDir, iAlign, iFace) &
-    !!!!OMP DEFAULT(shared)
-
     !  facedata%faceRep(iDir)%dat( nFaces, nFaceDoFs, nScalars, 2 )
     allocate( faceOp(size(facedata%faceRep(iDir)%dat,2), &
       &              size(facedata%faceRep(iDir)%dat,3)) )
