@@ -121,13 +121,14 @@ module atl_modg_kernel_module
 contains
 
 
+  ! ************************************************************************ !
   !> Initiate the MODG kernel for cubic elements on all levels.
   subroutine atl_init_modg_kernel(                                        &
     &          kerneldata_list, statedata_list, statedata_stab_list,      &
     &          mesh_list, scheme_list, boundary_list, boundary_stab_list, &
     &          equation, tree, time, commPattern,                         &
     &          need_deviation                                             )
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
     !> Array of kerneldata_types, one for each level. They will be initialized.
     type(atl_kerneldata_type), allocatable :: kerneldata_list(:)
     !> Array of statedata_types, one for each level.
@@ -152,13 +153,13 @@ contains
     !> Flag to indicate whether maximal polynomial deviations should be
     !! computed for the state.
     logical, intent(in) :: need_deviation
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
     integer :: iList, iStab, iDir
     integer :: nScalars, nScalarsState_Comm, nScalarsFlux_Comm, nDer, nDof
     integer :: nTotal
     logical :: stab_reqNeigh
     integer :: nBndStabElems(tree%global%minLevel:tree%global%maxLevel,1:3)
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
 
     ! the number of scalar variables of our equation system
     nScalars = equation%varSys%nScalars
@@ -245,9 +246,10 @@ contains
       &    maxLevel             = tree%global%maxLevel  )
 
   end subroutine atl_init_modg_kernel
+  ! ************************************************************************ !
 
 
-
+  ! ************************************************************************ !
   !> Subroutine to execute the preprocessing for the MODG kernels.
   !! Currently this includes: Convert external source terms to modal
   !! representation.
@@ -281,16 +283,16 @@ contains
       &                             commPattern = commPattern           )
 
   end subroutine atl_preprocess_modg_kernel
+  ! ************************************************************************ !
 
 
-
-
+  ! ************************************************************************ !
   !> Subroutine to project modal representations of physical flux, numerical
   !! flux and source terms onto test functions.
   subroutine atl_modg_project_NumFlux( mesh, equation, kerneldata, facedata, &
     &                              scheme, poly_proj, dl_prod, dl_prodDiff,  &
     &                              dirvec, penalizationdata, usePenalization )
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
     !> Descritption of the cubical elements in the mesh
     type(atl_cube_elem_type), intent(in) :: mesh
     !> The equation description.
@@ -313,17 +315,15 @@ contains
     !> Flag to indicate, whether we need to take care of the penalization
     !! terms here or not.
     logical, intent(in) :: usePenalization
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
     integer :: nScalars, nFaces, leftOrRight, nElems_fluid
-    !> The direction
     integer :: iDir
     type(atl_faceRep_type), allocatable :: faceReP_Q(:)
     type(atl_faceRep_type), allocatable :: faceFlux_Q(:)
     real(kind=rk), allocatable ::state_der_Q(:,:,:)
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
     nScalars = equation%varSys%nScalars
     nElems_fluid  = mesh%descriptor%elem%nElems(eT_fluid)
-
 
     ! Projection of the numerical flux
     do iDir = 1, 3
@@ -362,20 +362,20 @@ contains
       case('heat')
         select case(scheme%basisType)
         case(Q_space)
-        do iDir = 1, 3
-          ! Projection of the appropriate  numerical flux onto the derivative
-          ! of the test functions
-          call modg_project_numFlux_diffTest_Q(                             &
-            &    nScalars      = nScalars,                                  &
-            &    faceFlux      = facedata%faceFlux(iDir)                    &
-            &                            %dat(:,:,1+nScalars:2*nScalars,:), &
-            &    maxPolyDegree = scheme%maxPolyDegree,                      &
-            &    length        = mesh%length,                               &
-            &    nElems_fluid  = mesh%descriptor%elem%nElems(eT_fluid),     &
-            &    dl_prod       = dl_prodDiff,                               &
-            &    projection    = kerneldata%state_der,                      &
-            &    dirVec        = dirVec(:,iDir)                             )
-        end do
+          do iDir = 1, 3
+            ! Projection of the appropriate  numerical flux onto the derivative
+            ! of the test functions
+            call modg_project_numFlux_diffTest_Q(                             &
+              &    nScalars      = nScalars,                                  &
+              &    faceFlux      = facedata%faceFlux(iDir)                    &
+              &                            %dat(:,:,1+nScalars:2*nScalars,:), &
+              &    maxPolyDegree = scheme%maxPolyDegree,                      &
+              &    length        = mesh%length,                               &
+              &    nElems_fluid  = mesh%descriptor%elem%nElems(eT_fluid),     &
+              &    dl_prod       = dl_prodDiff,                               &
+              &    projection    = kerneldata%state_der,                      &
+              &    dirVec        = dirVec(:,iDir)                             )
+          end do
 
         case(P_space)
           allocate(faceFlux_Q(3))
@@ -405,6 +405,7 @@ contains
             &                         nElems     = nElems_fluid,         &
             &                         nVars      = nScalars,             &
             &                         nDims      = 3                     )
+
           ! Projection of the appropriate  numerical flux onto the derivative
           ! of the test functions
           do iDir = 1,3
@@ -451,6 +452,7 @@ contains
         ! ... x faces
         select case(scheme%basisType)
         case(Q_space)
+          ! ... x faces
           call modg_project_stabViscNumFluxX_Q(                         &
             &    numFlux       = facedata%faceFlux(1)%dat,              &
             &    faceState     = facedata%faceRep(1)%dat,               &
@@ -460,6 +462,7 @@ contains
             &    nElems_fluid  = mesh%descriptor%elem%nElems(eT_fluid), &
             &    projection    = kerneldata%state_der,                  &
             &    poly_proj     = poly_proj                              )
+
           ! ... y faces
           call modg_project_stabViscNumFluxY_Q(                         &
             &    numFlux       = facedata%faceFlux(2)%dat,              &
@@ -529,6 +532,7 @@ contains
             &                         nVars      = nScalars,             &
             &                         nDims      = 3                     )
 
+          ! ... x faces
           call modg_project_stabViscNumFluxX_Q(                         &
             &    numFlux       = faceFlux_Q(1)%dat,                     &
             &    faceState     = faceRep_Q(1)%dat,                      &
@@ -538,6 +542,7 @@ contains
             &    nElems_fluid  = mesh%descriptor%elem%nElems(eT_fluid), &
             &    projection    = state_der_Q,                           &
             &    poly_proj     = poly_proj                              )
+
           ! ... y faces
           call modg_project_stabViscNumFluxY_Q(                         &
             &    numFlux       = faceFlux_Q(2)%dat,                     &
@@ -583,6 +588,7 @@ contains
                 &                         nDims      = 2                        )
             end do
           end do
+
           call ply_change_poly_space( inspace    = Q_space,              &
             &                         instate    = state_der_Q,          &
             &                         outstate   = kerneldata%state_der, &
@@ -621,9 +627,12 @@ contains
         call tem_abort
       end select
     end if
+
   end subroutine atl_modg_project_NumFlux
+  ! ************************************************************************ !
 
 
+  ! ************************************************************************ !
   !> Projection of the numerical flux in x direction onto the testfunctions.
   subroutine modg_project_stabViscNumFluxX_Q(                       &
     &          numFlux, faceState, equation, maxPolyDegree, length, &
@@ -725,7 +734,6 @@ contains
     outerNormalLeft = jacobiDet * atl_elemfaceToNormal_prp(tem_left)
     outerNormalRight = jacobiDet * atl_elemfaceToNormal_prp(tem_right)
 
-
     elementLoop: do iElem = 1,nElems_fluid
 
       state_left = 0.0_rk
@@ -744,6 +752,7 @@ contains
         ! Get u
         ! ... for left face
         state_left(iOversamp,iVar) = faceState(iElem,iOrig,iVar,1)
+
         ! ... for right face
         state_right(iOversamp,iVar) = faceState(iElem,iOrig,iVar,2)
 
@@ -751,6 +760,7 @@ contains
         ! ... for the left face
         flux_left(iOversamp,iVar) = numFlux(iElem,iOrig,iVar+nScalars,1)  &
           &                       - state_left(iOversamp,iVar)
+
         ! ... for the right face
         flux_right(iOversamp,iVar) = numFlux(iElem,iOrig,iVar+nScalars,2) &
           &                        - state_right(iOversamp,iVar)
@@ -763,6 +773,7 @@ contains
         &                       nVars = nScalars,            &
         &                       nodal_data = pointVal_left,  &
         &                       modal_data = state_left      )
+
       ! ... for the right face
       call ply_poly_project_m2n(me = poly_proj,              &
         &                       dim = 2 ,                    &
@@ -777,6 +788,7 @@ contains
         &                       nVars = nScalars,                &
         &                       nodal_data = pointVal_flux_left, &
         &                       modal_data = flux_left           )
+
       ! ... for the right face
       call ply_poly_project_m2n(me = poly_proj,                   &
         &                       dim = 2 ,                         &
@@ -791,6 +803,7 @@ contains
         ! ... for the left face
         velocity_left(1:3) = pointVal_left(iPoint,2:4) &
           &                  / pointVal_left(iPoint,1)
+
         ! ... for the right face
         velocity_right(1:3) = pointVal_right(iPoint,2:4) &
           &                   / pointVal_right(iPoint,1)
@@ -867,11 +880,13 @@ contains
         &                       nVars      = nScalars,     &
         &                       nodal_data = nodal_a_left, &
         &                       modal_data = modalA_left   )
+
       call ply_poly_project_n2m(me         = poly_proj,    &
         &                       dim        = 2,            &
         &                       nVars      = nScalars,     &
         &                       nodal_data = nodal_b_left, &
         &                       modal_data = modalB_left   )
+
       call ply_poly_project_n2m(me         = poly_proj,    &
         &                       dim        = 2,            &
         &                       nVars      = nScalars,     &
@@ -884,11 +899,13 @@ contains
         &                       nVars      = nScalars,      &
         &                       nodal_data = nodal_a_right, &
         &                       modal_data = modalA_right   )
+
       call ply_poly_project_n2m(me         = poly_proj,     &
         &                       dim        = 2,             &
         &                       nVars      = nScalars,      &
         &                       nodal_data = nodal_b_right, &
         &                       modal_data = modalB_right   )
+
       call ply_poly_project_n2m(me         = poly_proj,     &
         &                       dim        = 2,             &
         &                       nVars      = nScalars,      &
@@ -901,6 +918,7 @@ contains
         ! ... for the left face
         testX_val_left = ply_faceValLeftBndTest(iTestX)
         testX_grad_val_left = ply_faceValLeftBndTestGrad(iTestX)
+
         ! ... for the right face
         testX_val_right = ply_faceValRightBndTest(iTestX)
         testX_grad_val_right = ply_faceValRightBndTestGrad(iTestX)
@@ -1367,13 +1385,13 @@ contains
         end if
       end do xTestLoop
 
-
     end do elementLoop
 
-
   end subroutine modg_project_stabViscNumFluxX_Q
+  ! ************************************************************************ !
 
 
+  ! ************************************************************************ !
   !> Projection of the numerical flux in y direction onto the testfunctions.
   subroutine modg_project_stabViscNumFluxY_Q(                       &
     &          numFlux, faceState, equation, maxPolyDegree, length, &
@@ -1777,13 +1795,13 @@ contains
         end do xTestLoop
       end do yTestLoop
 
-
     end do elementLoop
 
-
   end subroutine modg_project_stabViscNumFluxY_Q
+  ! ************************************************************************ !
 
 
+  ! ************************************************************************ !
   !> Projection of the numerical flux in y direction onto the testfunctions.
   subroutine modg_project_stabViscNumFluxZ_Q(                       &
     &          numFlux, faceState, equation, maxPolyDegree, length, &
@@ -2186,12 +2204,15 @@ contains
     end do elementLoop
 
   end subroutine modg_project_stabViscNumFluxZ_Q
+  ! ************************************************************************ !
 
+
+  ! ************************************************************************ !
   !> Projection of the penalization terms (in modal representation) to the 
   !! test functions.
   subroutine modg_project_penalization_Q( mesh, maxPolyDegree, &
                                         & kerneldata, penalizationdata)
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
     !> The maximal polynomial degree of the modg scheme
     integer, intent(in) :: maxPolyDegree
     !> The cubical elements.
@@ -2200,17 +2221,17 @@ contains
     type(atl_kerneldata_type), intent(inout) :: kerneldata
     !> Volumetric data for the penalization
     type(atl_penalizationData_type), intent(in) :: penalizationdata
-    ! --------------------------------------------------------------------------
-    integer :: iElem, xTestFunc, yTestFunc, zTestFunc, testPos, &
-             & xAnsFuncMin, xAnsFunc, yAnsFuncMin, yAnsFunc, zAnsFuncMin, &
-             & zAnsFunc, ansPos
+    ! -------------------------------------------------------------------- !
+    integer :: iElem, nDofs
+    integer :: testPos, ansPos
+    integer :: xTestFunc, yTestFunc, zTestFunc 
+    integer :: xAnsFunc, yAnsFunc, zAnsFunc
+    integer :: xAnsFuncMin, yAnsFuncMin, zAnsFuncMin
     real(kind=rk) :: jacobiDet, xScalProd, yScalProd, zScalProd
-    integer :: nDoFs
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
 
     jacobiDet = (0.5_rk*mesh%length)**3
     nDoFs = (maxPolyDegree+1)**3
-
 
     do iElem = 1, kerneldata%nTotal
 
@@ -2263,13 +2284,15 @@ contains
 
 
   end subroutine modg_project_penalization_Q
+  ! ************************************************************************ !
 
 
+  ! ************************************************************************ !
   !> Projection of the source terms (in modal representation) to the
   !! test functions.
   subroutine atl_modg_project_source( nScalars, sourcedata, scheme,  &
     &                                 mesh, kerneldata, currentLevel )
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
     !> The number scalar variables in the equation system.
     integer, intent(in) :: nScalars
     !> The modal representation of the source
@@ -2282,8 +2305,7 @@ contains
     type(atl_kerneldata_type), intent(inout) :: kerneldata
     !> The current level
     integer, intent(in) :: currentLevel
-    ! --------------------------------------------------------------------------
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
 
     ! Projection of the source terms onto the test functions.
     select case(scheme%basisType)
@@ -2306,14 +2328,16 @@ contains
     end select
 
   end subroutine atl_modg_project_source
+  ! ************************************************************************ !
 
 
+  ! ************************************************************************ !
   !> Projection of the source terms (in modal representation) to the 
   !! test functions.
   subroutine atl_modg_project_source_Q( sourcedata, nScalars, mesh, &
     &                                   maxPolyDegree, kerneldata,  &
     &                                   currentLevel                )
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
     !> The number scalar variables in the equation system.
     integer, intent(in) :: nScalars
     !> The modal representation of the source
@@ -2326,13 +2350,15 @@ contains
     type(atl_kerneldata_type), intent(inout) :: kerneldata
     !> The current level
     integer, intent(in) :: currentLevel
-    ! --------------------------------------------------------------------------
-    integer :: iElem, elemPos, xTestFunc, yTestFunc, zTestFunc, testPos, &
-             & xAnsFuncMin, xAnsFunc, yAnsFuncMin, yAnsFunc, zAnsFuncMin, &
-             & zAnsFunc, ansPos, varPos, iSource, nSourceElems
+    ! -------------------------------------------------------------------- !
+    integer :: iElem, iSource
+    integer :: nDofs, nSourceElems 
+    integer :: elemPos, testPos, ansPos, varPos
+    integer :: xTestFunc, yTestFunc, zTestFunc
+    integer :: xAnsFunc, yAnsFunc, zAnsFunc
+    integer :: xAnsFuncMin, yAnsFuncMin, zAnsFuncMin
     real(kind=rk) :: jacobiDet, xScalProd, yScalProd, zScalProd
-    integer :: nDoFs
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
 
     jacobiDet = (0.5_rk*mesh%length)**3
     nDoFs = (maxPolyDegree+1)**3
@@ -2404,14 +2430,16 @@ contains
 
 
   end subroutine atl_modg_project_source_Q
+  ! ************************************************************************ !
 
 
+  ! ************************************************************************ !
   !> Projection of the source terms (in modal representation) to the 
   !! test functions.
   subroutine atl_modg_project_source_P( sourcedata, nScalars, mesh, &
     &                                   maxPolyDegree, kerneldata,  &
     &                                   currentLevel                )
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
     !> The number scalar variables in the equation system.
     integer, intent(in) :: nScalars
     !> The modal representation of the source
@@ -2424,13 +2452,15 @@ contains
     type(atl_kerneldata_type), intent(inout) :: kerneldata
     !> The current level
     integer, intent(in) :: currentLevel
-    ! --------------------------------------------------------------------------
-    integer(kind=long_k) :: elemPos
-    integer :: iElem, xTestFunc, yTestFunc, zTestFunc, testPos, xAnsFuncMin, &
-      &        xAnsFunc, yAnsFuncMin, yAnsFunc, zAnsFuncMin, zAnsFunc,       &
-      &        ansPos, varPos, iSource, nSourceElems, testPosMax
+    ! -------------------------------------------------------------------- !
+    integer :: elemPos, ansPos, varPos, testPos, testPosMax
+    integer :: iElem, iSource
+    integer :: nSourceElems
+    integer :: xTestFunc, yTestFunc, zTestFunc
+    integer :: xAnsFunc, yAnsFunc, zAnsFunc
+    integer :: xAnsFuncMin, yAnsFuncMin, zAnsFuncMin
     real(kind=rk) :: jacobiDet, xScalProd, yScalProd, zScalProd
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
 
     jacobiDet = (0.5_rk*mesh%length)**3
 
@@ -2497,14 +2527,16 @@ contains
     end do ! source loop
 
   end subroutine atl_modg_project_source_P
+  ! ************************************************************************ !
 
 
+  ! ************************************************************************ !
   !> Projection of the numerical flux onto the testfunctions for Q_space.
   subroutine modg_project_numFlux_Q( nTotalFaces, &
     &                                nFaceDofs, nScalars, faceFlux, &
     &                                maxPolyDegree, length, &
     &                                nElems_fluid, dl_prod, projection, dirVec )
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
     !> dimensions
     integer, intent(in) :: nTotalFaces, nFaceDofs, nScalars
     !> The numerical flux on the left face in modal representations.
@@ -2522,18 +2554,21 @@ contains
     real(kind=rk), intent(in) :: dl_prod(2, maxPolyDegree+1)
     !> direction (x,y,z)
     integer, intent(in) :: dirVec(3)
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
     integer :: testFunc1, testFunc2, testFunc3, testPosFunc(3)
     integer :: testPos, ansPos(4)
+    integer :: iVar, jk
+    integer :: maxpd_m1, min2mpd
     real(kind=rk) :: yScalProd, zScalProd(4)
     real(kind=rk) :: outerNormalLeft, outerNormalRight
     real(kind=rk) :: jacobiDetFaceProj
     real(kind=rk) :: faceValLeft, faceValRight
-    integer :: iVar, min2mpd
-    integer :: jk
-    integer :: maxpd_m1
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
 
+    !$OMP PARALLEL DEFAULT(SHARED), &
+    !$OMP PRIVATE( testFunc1, testFunc2, testFunc3, testPosFunc ), &
+    !$OMP PRIVATE( faceValLeft, faceValRight, yScalProd, zScalProd ), &
+    !$OMP PRIVATE( testPos, ansPos, iVar, jk )
 
     ! Jacobi determinant for the projections of the numerical fluxes onto the
     ! test functions
@@ -2543,12 +2578,12 @@ contains
     min2mpd = min(maxPolyDegree+1,2)
     maxpd_m1 = max(maxPolyDegree-1,0)
 
-
     ! Loop over all the test functions and project the numerical flux to them.
     do testFunc1 = 1,min2mpd
       faceValLeft  = ply_faceValLeftBndTest(testFunc1) * outerNormalLeft
       faceValRight = ply_faceValRightBndTest(testFunc1) * outerNormalRight
 
+      !$OMP DO
       do jk=1,min2mpd**2
         testFunc2 = mod(jk-1,min2mpd) + 1
         testFunc3 = (jk-1)/min2mpd + 1
@@ -2578,7 +2613,9 @@ contains
             &          * faceFlux(:nElems_fluid,ansPos(1),iVar,2) )
         end do
       end do
+      !$OMP END DO
 
+      !$OMP DO
       do jk=1,min2mpd*maxpd_m1
         testFunc2 = mod(jk-1,min2mpd) + 1
         testFunc3 = (jk-1)/min2mpd + 3
@@ -2619,7 +2656,9 @@ contains
         end do
 
       end do
+      !$OMP END DO
 
+      !$OMP DO
       do jk=1,min2mpd*maxpd_m1
         testFunc3 = mod(jk-1,min2mpd) + 1
         testFunc2 = (jk-1)/min2mpd + 3
@@ -2660,7 +2699,9 @@ contains
         end do
 
       end do
+      !$OMP END DO
 
+      !$OMP DO
       do jk=1,maxpd_m1**2
         testFunc2 = mod(jk-1,maxpd_m1) + 3
         testFunc3 = (jk-1)/maxpd_m1 + 3
@@ -2719,16 +2760,21 @@ contains
         end do
 
       end do
+      !$OMP END DO
 
     end do
+
+    !$OMP END PARALLEL
+
   end subroutine modg_project_numFlux_Q
+  ! ************************************************************************ !
 
 
-
+  ! ************************************************************************ !
   !> Projection of the numerical flux onto the differentiated testfunctions.
   subroutine modg_project_numFlux_diffTest_Q( nScalars, faceFlux,      &
     & maxPolyDegree, length, nElems_fluid, dl_prod, projection, dirVec )
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
     !> dimensions
     integer, intent(in) :: nScalars
     !> The numerical flux on the left face in modal representations.
@@ -2746,16 +2792,20 @@ contains
     real(kind=rk), intent(in) :: dl_prod(2, maxPolyDegree+1)
     !> direction (x,y,z)
     integer, intent(in) :: dirVec(3)
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
     integer :: testFunc1, testFunc2, testFunc3, testPosFunc(3)
     integer :: testPos, ansPos(4)
+    integer :: iVar, jk
+    integer :: maxpd_m1, min2mpd
     real(kind=rk) :: yScalProd, zScalProd(4)
     real(kind=rk) :: jacobiDetFaceProj
     real(kind=rk) :: faceValLeft, faceValRight
-    integer :: iVar, min2mpd
-    integer :: jk
-    integer :: maxpd_m1
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
+
+    !$OMP PARALLEL DEFAULT(SHARED), &
+    !$OMP PRIVATE( testFunc1, testFunc2, testFunc3, testPosFunc ), &
+    !$OMP PRIVATE( faceValLeft, faceValRight, yScalProd, zScalProd ), &
+    !$OMP PRIVATE( testPos, ansPos, iVar, jk )
 
     ! Jacobi determinant for the projections of the numerical fluxes onto the
     ! test functions
@@ -2770,6 +2820,7 @@ contains
       faceValLeft  = ply_faceValLeftBndGradTest(testFunc1)
       faceValRight = ply_faceValRightBndGradTest(testFunc1)
 
+      !$OMP DO
       do jk=1,(min2mpd)**2
         testFunc2 = mod(jk-1,min2mpd) + 1
         testFunc3 = (jk-1)/min2mpd + 1
@@ -2778,7 +2829,6 @@ contains
         ! position of the test functions in the kerneldata
         testPosFunc(:) = (/testFunc1, testFunc2, testFunc3/)
 ?? copy :: posOfModgCoeffQTens(testPosFunc(dirVec(1)), testPosFunc(dirVec(2)), testPosFunc(dirVec(3)), maxPolyDegree, testPos)
-
 
         ! calculate the projection of the ansatz and test function
         zScalProd(1) = dl_prod(2, testFunc3) &
@@ -2802,8 +2852,10 @@ contains
         end do
 
       end do
+      !$OMP END DO
 
       ! for the testfunct3 greater than 5 and testfunc2 less than 5
+      !$OMP DO
       do jk=1,maxpd_m1*5
         testFunc2 = mod(jk-1,min2mpd) + 1
         testFunc3 = (jk-1)/min2mpd + 6
@@ -2812,7 +2864,6 @@ contains
         ! position of the test functions in the kerneldata
         testPosFunc(:) = (/testFunc1, testFunc2, testFunc3/)
 ?? copy :: posOfModgCoeffQTens(testPosFunc(dirVec(1)), testPosFunc(dirVec(2)), testPosFunc(dirVec(3)), maxPolyDegree, testPos)
-
 
         ! calculate the projection of the ansatz and test function
         yScalProd = dl_prod(2, testFunc2) * jacobiDetFaceProj
@@ -2844,8 +2895,10 @@ contains
             &        * faceFlux(:nElems_fluid,ansPos(2),iVar,2) )
         end do
       end do
+      !$OMP END DO
 
       ! for the testfunct2 greater than 5 and testfunc3 less than 5
+      !$OMP DO
       do jk=1,maxpd_m1*5
         testFunc3 = mod(jk-1,min2mpd) + 1
         testFunc2 = (jk-1)/min2mpd + 6
@@ -2854,7 +2907,6 @@ contains
         ! position of the test functions in the kerneldata
         testPosFunc(:) = (/testFunc1, testFunc2, testFunc3/)
 ?? copy :: posOfModgCoeffQTens(testPosFunc(dirVec(1)), testPosFunc(dirVec(2)), testPosFunc(dirVec(3)), maxPolyDegree, testPos)
-
 
         ! calculate the projection of the ansatz and test function
         zScalProd(1) = dl_prod(2, testFunc3) &
@@ -2886,7 +2938,9 @@ contains
         end do
 
       end do
+      !$OMP END DO
 
+      !$OMP DO
       do jk=1,(maxpd_m1)**2
         testFunc2 = mod(jk-1,maxpd_m1) + 6
         testFunc3 = (jk-1)/maxpd_m1 + 6
@@ -2894,7 +2948,6 @@ contains
         ! position of the test functions in the kerneldata
         testPosFunc(:) = (/testFunc1, testFunc2, testFunc3/)
 ?? copy :: posOfModgCoeffQTens(testPosFunc(dirVec(1)), testPosFunc(dirVec(2)), testPosFunc(dirVec(3)), maxPolyDegree, testPos)
-
 
         ! calculate the projection of the ansatz and test function
         zScalProd(1) = dl_prod(1, testFunc3) * dl_prod(1, testFunc2) &
@@ -2943,16 +2996,22 @@ contains
             &        * faceFlux(:nElems_fluid,ansPos(4),iVar,2) )
         end do
       end do
+      !$OMP END DO
 
     end do
+
+    !$OMP END PARALLEL
+
   end subroutine modg_project_numFlux_difftest_Q
+  ! ************************************************************************ !
 
 
+  ! ************************************************************************ !
   !> Projection of the numerical flux onto the testfunctions for P_space.
   subroutine modg_project_numFlux_P( nTotalFaces, nFaceDofs, nScalars,    &
     & faceFlux, maxPolyDegree, length, nElems_fluid, dl_prod, projection, &
     & dirVec                                                              )
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
     !> dimensions
     integer, intent(in) :: nTotalFaces, nFaceDofs, nScalars
     !> The numerical flux on the left face in modal representations.
@@ -2970,17 +3029,16 @@ contains
     real(kind=rk), intent(in) :: dl_prod(2, maxPolyDegree+1)
     !> direction (x,y,z)
     integer, intent(in) :: dirVec(3)
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
     integer :: testFunc1, testFunc2, testFunc3, testPosFunc(3)
     integer :: testPos, ansPos(4)
+    integer :: iVar
+    integer :: min2mpd
     real(kind=rk) :: yScalProd, zScalProd(4)
     real(kind=rk) :: outerNormalLeft, outerNormalRight
     real(kind=rk) :: jacobiDetFaceProj
     real(kind=rk) :: faceValLeft, faceValRight
-    integer :: iVar
-    integer :: min2mpd
-    ! --------------------------------------------------------------------------
-
+    ! -------------------------------------------------------------------- !
 
     ! Jacobi determinant for the projections of the numerical fluxes onto the
     ! test functions
@@ -3170,8 +3228,10 @@ contains
     end do
 
   end subroutine modg_project_numFlux_P
+  ! ************************************************************************ !
 
 
+  ! ************************************************************************ !
   !> Lift the mean on the face to a positive value if necessary.
   !!
   !! In some equations, some variables may not be allowed to be negative,
@@ -3202,10 +3262,10 @@ contains
     !! Only variables where this is set to .true. will be modified by this
     !! routine.
     logical, intent(in) :: ensure_positivity(:)
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
     integer :: iVar, iDir
     real(kind=rk) :: epsfact
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
 
     epsfact = epsilon(volState(1,1,1))
 
@@ -3228,14 +3288,16 @@ contains
     end do
 
   end subroutine atl_modg_ensure_pos_facemean
+  ! ************************************************************************ !
 
 
+  ! ************************************************************************ !
   !> Projects modal representation of each cell to its faces, i.e.
   !! this subroutine creates a modal representation on the faces.
   subroutine atl_modg_modalVolToModalFace( nElems_fluid, length , volState, &
     &                                      faceRep, nScalars, nDerivatives, &
     &                                      modg                             )
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
     !> Volumetric, modal states for each element.
     real(kind=rk), intent(in) :: volState(:,:,:)
     !> Modal representation on the face (will be updated by this routine for all
@@ -3251,12 +3313,12 @@ contains
     real(kind=rk), intent(in) :: length
     !> The parameters of your modg scheme.
     type(atl_modg_scheme_type), intent(in) :: modg
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
     integer :: iDir, spaceDir
     integer :: nFaces
     real(kind=rk), allocatable :: volState_Q(:,:,:)
     real(kind=rk), allocatable :: faceState_Q(:,:,:,:)
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
 
     do iDir = 1,3
       faceRep(iDir)%dat(1:nElems_fluid,:,:,:) = 0.0_rk
@@ -3414,12 +3476,14 @@ contains
 
 
   end subroutine atl_modg_modalVolToModalFace
+  ! ************************************************************************ !
 
 
+  ! ************************************************************************ !
   !> Project modal representation of an element to its two faces in X.
   subroutine modg_volToFace_Q_x( nScalars, volState, maxPolyDegree, nElems, &
     &                            faceState )
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
     integer, intent(in) :: nScalars
     !> The modal representation in the volume. First dimension is the number of
     !! volumetric numbers of degrees of freedom and second dimension is the
@@ -3431,14 +3495,12 @@ contains
     integer, intent(in) :: nElems
     !> The modal representation on the faces in X direction
     real(kind=rk), intent(inout) :: faceState(:,:,:,:)
-    ! --------------------------------------------------------------------------
-    integer :: pos, facePos, iAnsX
-    integer :: iVar
+    ! -------------------------------------------------------------------- !
+    integer :: pos, facePos
+    integer :: iVar, iElem, iVEF, ipv, iAnsX
     integer :: mpd1, mpd1_square
-    integer :: iElem
-    integer :: iVEF, ipv
     integer :: nIndeps
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
 
     mpd1 = maxpolydegree+1
     mpd1_square = mpd1**2
@@ -3482,6 +3544,7 @@ contains
       end do
 
     end do
+
     do iAnsX=2,maxPolyDegree+1,2
 
       !$NEC ivdep
@@ -3501,13 +3564,16 @@ contains
 
     end do
 
+
   end subroutine modg_voltoface_Q_x
+  ! ************************************************************************ !
 
 
+  ! ************************************************************************ !
   !> Project modal representation of an element to its two faces in Y.
   subroutine modg_volToFace_Q_y( nScalars, volState, maxPolyDegree, nElems, &
     &                            faceState )
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
     integer, intent(in) :: nScalars
     !> The modal representation in the volume. First dimension is the number of
     !! volumetric numbers of degrees of freedom and second dimension is the
@@ -3519,15 +3585,13 @@ contains
     integer, intent(in) :: nElems
     !> The modal representation on the faces in X direction
     real(kind=rk), intent(inout) :: faceState(:,:,:,:)
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
     integer :: pos, facePos
     integer :: iAnsX, iAnsY, iAnsZ
-    integer :: iVar
+    integer :: iVar, iElem, iVEF, ipv
     integer :: mpd1, mpd1_square
-    integer :: iElem
-    integer :: iVEF, ipv
     integer :: nIndeps
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
 
     mpd1 = maxpolydegree+1
     mpd1_square = mpd1**2
@@ -3575,6 +3639,7 @@ contains
       end do
 
     end do
+
     do iAnsY=2,maxPolyDegree+1,2
 
       !$NEC ivdep
@@ -3597,12 +3662,14 @@ contains
     end do
 
   end subroutine modg_voltoface_Q_y
+  ! ************************************************************************ !
 
 
+  ! ************************************************************************ !
   !> Project modal representation of an element to its two faces in Y.
   subroutine modg_volToFace_Q_z( nScalars, volState, maxPolyDegree, nElems, &
     &                            faceState )
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
     integer, intent(in) :: nScalars
     !> The modal representation in the volume. First dimension is the number of
     !! volumetric numbers of degrees of freedom and second dimension is the
@@ -3614,15 +3681,13 @@ contains
     integer, intent(in) :: nElems
     !> The modal representation on the faces in X direction
     real(kind=rk), intent(inout) :: faceState(:,:,:,:)
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
     integer :: pos, facePos
-    integer :: iAnsZ
-    integer :: iVar
+    integer :: iAnsZ 
+    integer :: iVar, iElem, iVEF, ipv
     integer :: mpd1, mpd1_square
-    integer :: iElem
-    integer :: iVEF, ipv
     integer :: nIndeps
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
 
     mpd1 = maxpolydegree+1
     mpd1_square = mpd1**2
@@ -3666,6 +3731,7 @@ contains
       end do
 
     end do
+
     do iAnsZ=2,maxPolyDegree+1,2
 
       !$NEC ivdep
@@ -3686,12 +3752,14 @@ contains
     end do
 
   end subroutine modg_voltoface_Q_z
+  ! ************************************************************************ !
 
 
+  ! ************************************************************************ !
   !> Applies the inverse of the mass matrix for a 3D scheme.
   subroutine atl_modg_invMassMatrix( mesh, kerneldata, statedata,        &
     &                                elementalTimestep, timestep, scheme )
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
     !> The mesh you are working with.
     type(atl_cube_elem_type) :: mesh
     !> The data of the kernel.
@@ -3706,8 +3774,9 @@ contains
     type(atl_timestep_type) :: timestep
     !> Parameters of the modal dg scheme
     type(atl_modg_scheme_type), intent(in) :: scheme
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
     integer :: nElems
+    ! -------------------------------------------------------------------- !
 
     nElems = mesh%descriptor%elem%nElems(eT_fluid)
 
@@ -3724,11 +3793,14 @@ contains
     call elementalTimestep( timestep, statedata%state, kerneldata )
 
   end subroutine atl_modg_invMassMatrix
+  ! ************************************************************************ !
 
+
+  ! ************************************************************************ !
   !> Applies the inverse of the mass matrix for a 3D scheme.
   subroutine modg_invMassMatrix_Q( mesh, kerneldata,  &
     &                              scheme, nElems )
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
     !> The mesh you are working with.
     type(atl_cube_elem_type) :: mesh
     !> The data of the kernel.
@@ -3736,21 +3808,20 @@ contains
     !> Parameters of the modal dg scheme
     type(atl_modg_scheme_type), intent(in) :: scheme
     integer, intent(in) :: nElems
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
     ! Loop indices for ansatz functions
     integer :: iAnsX, iAnsY, iAnsZ
     integer :: iAnsYZ, iAnsXZ, iAnsXY
+    integer :: posCoeff
+    integer :: yz_offset, xz_offset
+    integer :: iVar, iElem, iStrip, i
+    integer :: nVars, nEntries
+    integer :: mp1, square_mp1
     ! Inverse of the determintant of the jacobian of the mapping from reference
     ! to physical element.
     real(kind=rk) :: inv_jacobiDet
     real(kind=rk) :: tmp(vlen)
-    integer :: posCoeff
-    integer :: yz_offset, xz_offset
-    integer :: iVar, iElem, iStrip
-    integer :: i
-    integer :: nVars, nEntries
-    integer :: mp1, square_mp1
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
 
     nVars = kerneldata%nVars
     mp1 = scheme%maxPolyDegree+1
@@ -3901,11 +3972,13 @@ contains
     end if
 
   end subroutine modg_invMassMatrix_Q
+  ! ************************************************************************ !
 
 
+  ! ************************************************************************ !
   !> Applies the inverse of the mass matrix for a 3D scheme.
   subroutine modg_invMassMatrix_P( mesh, kerneldata, scheme, nElems )
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
     !> The mesh you are working with.
     type(atl_cube_elem_type) :: mesh
     !> The data of the kernel.
@@ -3913,7 +3986,7 @@ contains
     !> Parameters of the modal dg scheme
     type(atl_modg_scheme_type), intent(in) :: scheme
     integer, intent(in) :: nElems
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
     ! Loop indices for ansatz functions
     integer :: iAnsX, iAnsY, iAnsZ
     ! Positions for the given ansatz functions
@@ -3921,7 +3994,7 @@ contains
     ! Inverse of the determintant of the jacobian of the mapping from reference
     ! to physical element.
     real(kind=rk) :: inv_jacobiDet
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
 
     inv_jacobiDet = (2.0_rk/mesh%length)**3
 
@@ -4006,8 +4079,10 @@ contains
 
 
   end subroutine modg_invMassMatrix_P
+  ! ************************************************************************ !
 
 
+  ! ************************************************************************ !
   !> Applies a scaled transposed inverse of the mass matrix for a 3D scheme.
   !! The result is a transformation of the polynomial basis from 
   !! the ansatz- to the test-polynomials.
@@ -4016,7 +4091,7 @@ contains
     &                                                  nScalars,           &
     &                                                  maxPolyDegree,      &
     &                                                  nElems, state       )
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
     !> defines the dimensions of the state array
     integer, intent(in) :: nTotalElems, nDofs, nScalars
     !> polynomial degree of the modal dg scheme
@@ -4025,14 +4100,14 @@ contains
     integer, intent(in) :: nElems
     !> the state to transform
     real(kind=rk), intent(inout) :: state(nTotalElems,nDofs,nScalars)
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
     ! Loop indices for ansatz functions
     integer :: iAnsX, iAnsY, iAnsZ
     integer :: ij, ik, jk
     ! Positions for the given ansatz functions
     integer :: ans, ansNext
     integer :: mpd1, mpd1_square
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
 
     mpd1 = maxPolyDegree+1
     mpd1_square = mpd1**2
@@ -4075,8 +4150,10 @@ contains
 
 
   end subroutine atl_modg_scaledTransposedInvMassMatrix_Q
+  ! ************************************************************************ !
 
 
+  ! ************************************************************************ !
   !> Applies a scaled transposed inverse of the mass matrix for a 3D scheme.
   !! The result is a transformation of the polynomial basis from the 
   !! ansatz- to the test-polynomials.
@@ -4085,7 +4162,7 @@ contains
     &                                                  nScalars,           &
     &                                                  maxPolyDegree,      &
     &                                                  nElems, state       )
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
     !> defines the dimensions of the state array
     integer, intent(in) :: nTotalElems, nDofs, nScalars
     !> polynomial degree of the modal dg scheme
@@ -4094,13 +4171,12 @@ contains
     integer, intent(in) :: nElems
     !> the state to transform
     real(kind=rk), intent(inout) :: state(nTotalElems,nDofs,nScalars)
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
     ! Loop indices for ansatz functions
     integer :: iAnsX, iAnsY, iAnsZ
     ! Positions for the given ansatz functions
     integer :: ans, ansNext
-    ! --------------------------------------------------------------------------
-
+    ! -------------------------------------------------------------------- !
 
     ! apply the 1D inverse of the mass matrix
     do iAnsX = 1, maxPolyDegree+1, 1
@@ -4145,8 +4221,10 @@ contains
 
 
   end subroutine atl_modg_scaledTransposedInvMassMatrix_P
+  ! ************************************************************************ !
 
 
+  ! ************************************************************************ !
   !> Projection of the physical flux for the local predictor:
   !! This function expects the physical flux transformed in the basis of
   !! test-polynomials and projects it onto the ansatz-functions.
@@ -4157,7 +4235,7 @@ contains
   !! matrix and some useful scaling factors
   subroutine atl_modg_scaledTransposedProject_physFlux_Q( nScalars, &
     & maxPolyDegree, length, nElems, state, iDir, dirVec            )
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
     !> The number of scalar variables in your equation system.
     integer, intent(in) :: nScalars
     !> The maximal polynomial degree in each spatial direction.
@@ -4171,16 +4249,14 @@ contains
     integer, intent(in) :: iDir
     !> ordering of xyz for current direction
     integer, intent(in) :: dirVec(3)
-    ! --------------------------------------------------------------------------
-    real(kind=rk) :: scaledJacobiDetStiffProj, scalProd1(maxPolyDegree)
-    integer :: testPos
+    ! -------------------------------------------------------------------- !
+    integer :: testPos, ansPos(4)
     integer :: iTest2, iTest1, iTest3, iTestVec(3)
     integer :: iAnsVec(3)
-    integer :: iVar
-    integer :: ansPos(4)
+    integer :: iVar, ij
     real(kind=rk) :: scalProd
-    integer :: ij
-    ! --------------------------------------------------------------------------
+    real(kind=rk) :: scaledJacobiDetStiffProj, scalProd1(maxPolyDegree)
+    ! -------------------------------------------------------------------- !
 
     ! Jacobi determinant for pojections of the physical fluxes in test basis 
     ! onto the ansatz functions.
@@ -4326,8 +4402,10 @@ contains
     end do
 
   end subroutine atl_modg_scaledTransposedProject_physFlux_Q
+  ! ************************************************************************ !
 
 
+  ! ************************************************************************ !
   !> Projection of the physical flux for the local predictor:
   !! This function expects the physical flux transformed in the basis of 
   !! test-polynomials and projects it onto the ansatz-functions.
@@ -4338,7 +4416,7 @@ contains
   !! matrix and some useful scaling factors
   subroutine atl_modg_scaledTransposedProject_physFlux_P( nScalars, &
     & maxPolyDegree, length, nElems, state, iDir, dirVec            )
-    ! --------------------------------------------------------------------------
+    ! -------------------------------------------------------------------- !
     !> The number of scalar variables in your equation system.
     integer, intent(in) :: nScalars
     !> The maximal polynomial degree in each spatial direction.
@@ -4352,16 +4430,16 @@ contains
     integer, intent(in) :: iDir
     !> ordering of xyz for current direction
     integer, intent(in) :: dirVec(3)
-    ! --------------------------------------------------------------------------
-    real(kind=rk) :: scaledJacobiDetStiffProj, scalProd1(maxPolyDegree)
+    ! -------------------------------------------------------------------- !
     integer :: testPos
     integer :: iTest2, iTest1, iTest3, iTestVec(3)
     integer :: iAnsVec(3)
     integer :: iVar
     integer :: ansPos(4)
-    real(kind=rk) :: scalProd
     integer :: maxDeg2, maxDeg1
-    ! --------------------------------------------------------------------------
+    real(kind=rk) :: scalProd
+    real(kind=rk) :: scaledJacobiDetStiffProj, scalProd1(maxPolyDegree)
+    ! -------------------------------------------------------------------- !
 
     ! Jacobi determinant for pojections of the physical fluxes in test basis 
     ! onto the ansatz functions.
@@ -4373,7 +4451,7 @@ contains
     ! (mesh%length/2.0)**3, but the derivative in the volume integral
     ! gives an additional prefactor of 2.0/mesh%length and therefore
     ! the following is the correct scaling factor for the volume integrals.
-    !jacobiDetStiffProj = (0.5_rk*length)**2
+    ! jacobiDetStiffProj = (0.5_rk*length)**2
     ! Here we apply some additional scaling with invJacobiDet = (2/length)**3,
     ! so the final scaling is (- because it's on the rhs)
     scaledJacobiDetStiffProj = - (2/length)
@@ -4557,8 +4635,10 @@ contains
     end do
 
   end subroutine atl_modg_scaledTransposedProject_physFlux_P
+  ! ************************************************************************ !
 
 
+  ! ************************************************************************ !
   !> Subroutine to test the various routines of this module.
   subroutine atl_modg_kernel_utests(passed)
     use atl_equation_module, only: atl_equations_type
@@ -4620,8 +4700,10 @@ contains
       &              < epsilon(1.0_rk))                     )
 
   end subroutine atl_modg_kernel_utests
+  ! ************************************************************************ !
 
 
+  ! ************************************************************************ !
   subroutine test_project_stabViscNumFlux(polydegree, oversamplefactor, dir, &
     &                                     equation, length, rotated_mom      )
     use ply_dof_module, only: q_space
@@ -4768,6 +4850,7 @@ contains
     write(*,*) '----------------------------------------------------------'
 
   end subroutine test_project_stabViscNumFlux
+  ! ************************************************************************ !
 
 
 end module atl_modg_kernel_module
