@@ -97,7 +97,7 @@ and can be provided in terms of the prescribed definitions.
 
 Complicated geometries are created by Seeder,
 a preprocessing tool with which you can get familiar with by visiting its
-[documentation](https://geb.sts.nt.uni-siegen.de/CodeDox/seeder/index.html).
+[documentation](https://apes-suite.github.io/seeder/index.html).
 For the moment, we will consider a simple pre-defined geometry
 (in our case a cube with periodic boundries and no obstacles).
 

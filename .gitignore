@@ -1,6 +1,7 @@
 tags
 build/
 .waf*/
+PS_Output/
 .lock-waf_linux_build
 coco
 

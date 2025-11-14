@@ -37,7 +37,6 @@ program atl_legToCheb_test
 
   ! Init the Treelm environment, needed to init the log Unit
   call tem_start(codeName = 'Ateles unit test', &
-    &            version  = 'utest',            &
     &            general  = params%general      )
 
   ! Check the transformation for different number of polynomial coefficients.

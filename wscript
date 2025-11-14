@@ -15,7 +15,6 @@ out = 'build'
 
 def options(opt):
     opt.load('eclipse')
-    opt.recurse('treelm')
     opt.add_option('--no_harvesting', action='store_true',
                    default=False,
                    help = 'Do not include harvesting files for compilation.',
@@ -27,10 +26,8 @@ def configure(conf):
       conf.env.build_hvs = True
     else:
       conf.env.build_hvs = False
-    conf.recurse('treelm')
     conf.setenv('')
     Logs.warn('Ateles specific configuration:')
-    conf.recurse('polynomials')
 
     # Avoid some warnings in gfortran:
     if not conf.options.nowarn:
@@ -47,30 +44,10 @@ def configure(conf):
     conf.setenv('')
     conf.setenv('ford', conf.env)
     conf.env.ford_mainpage = 'mainpage.md'
+    conf.env.fordurl_atl = 'https://apes-suite.github.io/ateles/'
+
 
 def build(bld):
-
-    bld(rule='cp ${SRC} ${TGT}', source=bld.env.COCOSET, target='coco.set')
-
-    bld.add_group()
-
-    if bld.cmd != 'gendoxy':
-        # Build Treelm and aotus recursive
-        bld.recurse('treelm')
-
-    else:
-        bld(rule='cp ${SRC} ${TGT}',
-            source = bld.path.find_node(['treelm', 'source', 'arrayMacros.inc']),
-            target = bld.path.find_or_declare('arrayMacros.inc'))
-
-    bld.recurse('polynomials')
-
-    # Build the Ateles objects
-    build_atl_objs(bld)
-
-
-
-def build_atl_objs(bld):
 
     ateles_sources = bld.path.ant_glob('source/*.f90',
                                        excl='source/ateles.f90')
@@ -97,47 +74,79 @@ def build_atl_objs(bld):
 
     ateles_sources += atl_ppsources
 
-    if bld.cmd != 'gendoxy':
+    if bld.cmd != 'docu':
 
         compile_atl(bld, ateles_sources)
         bld(
             features = 'fc fcprogram',
+            name = 'ateles',
             source = 'source/ateles.f90',
             use     = ['atl_objs', 'tem_objs', 'ply_objs', 'aotus', bld.env.distcrc,
                        bld.env.mpi_mem_c_obj, 'fftw_mod_obj', 'NAG',
                        'fxtp_wrap_obj', 'fxtp_obj', 'fxtp_wrapper',
                        'PRECICE','MPICXX', 'PYLIB', 'STDCXX', 'RT', 'ZLIB', 'PETSC',
                        'BOOST_system', 'BOOST_filesystem'],
-            target = 'ateles')
+            target = bld.path.parent.find_or_declare('ateles'))
         bld(
             features = 'fc fcprogram',
             source = 'peons/solve_euler_riemann.f90',
             use     = ['atl_objs', 'tem_objs', 'ply_objs', 'aotus',
                        bld.env.mpi_mem_c_obj, 'fftw_mod_obj', 'NAG', bld.env.distcrc,
                        'fxtp_wrap_obj', 'fxtp_obj', 'fxtp_wrapper',
-                       'PRECICE', 'MPICXX', 'PYLIB', 'STDCXX', 'RT', 'ZLIB', 'PETSC', 
+                       'PRECICE', 'MPICXX', 'PYLIB', 'STDCXX', 'RT', 'ZLIB', 'PETSC',
                        'BOOST_system', 'BOOST_filesystem'],
             target = 'solve_euler_riemann')
         if bld.env.build_hvs and not bld.options.no_harvesting:
             bld(
                 features = 'fc fcprogram',
+                name = 'atl_harvesting',
                 source = 'source/atl_harvesting/atl_harvesting.f90',
                 use     = ['atl_objs', 'tem_objs', 'ply_objs', 'aotus', bld.env.distcrc,
                            bld.env.mpi_mem_c_obj, 'fftw_mod_obj', 'NAG', 'base64',
                            'fxtp_wrap_obj', 'fxtp_obj', 'fxtp_wrapper',
-                           'PRECICE','MPICXX', 'PYLIB', 'STDCXX', 'RT', 'ZLIB', 'PETSC', 
+                           'PRECICE','MPICXX', 'PYLIB', 'STDCXX', 'RT', 'ZLIB', 'PETSC',
                            'BOOST_system', 'BOOST_filesystem'],
-                target = 'atl_harvesting')
+                target = bld.path.parent.find_or_declare('atl_harvesting'))
+
     else:
+      from waflib.extras.make_fordoc import gendoc
 
-       bld.recurse('treelm', 'post_doxy')
+      app = bld(
+        features = 'includes coco',
+        source   = atl_ppsources)
 
-       bld(
-           features = 'coco',
-           source = atl_ppsources)
+
+      if not bld.env.fordonline:
+        atl_preprocessed.append(bld.env.fordext_aotus)
+        atl_preprocessed.append(bld.env.fordext_tem)
+
+      tgt = bld.path.get_bld().make_node('docu/modules.json')
+      bld.env.fordext_atl = tgt
+
+      gd_args = {
+          "rule" : gendoc,
+          "src_paths" : [bld.path.find_node('source').abspath(),
+                       bld.path.parent.find_node('polynomials').abspath(),
+                       bld.path.parent.get_bld().abspath()
+                      ],
+          "target" : tgt,
+          "mainpage" : os.path.join(bld.top_dir, 'atl', 'mainpage.md')
+      }
+
+      if bld.env.fordonline:
+          bld( **gd_args,
+               extern_urls = ['aoturl = {0}'.format(bld.env.fordurl_aotus),
+                              'temurl = {0}'.format(bld.env.fordurl_tem)
+                             ]
+          )
+      else:
+          bld( **gd_args,
+               extern = ['aoturl = {0}'.format(bld.env.fordext_aotus),
+                         'temurl = {0}'.format(bld.env.fordext_tem)
+                        ],
+          )
 
 def compile_atl(bld, ateles_sources):
-    from waflib import Logs
     from waflib.extras.utest_results import utests
 
     bld(
@@ -150,13 +159,13 @@ def compile_atl(bld, ateles_sources):
                 bld.env.mpi_mem_c_obj, 'fftw_mod_obj', 'NAG',
                 'fxtp_wrap_obj', 'fxtp_obj', 'fxtp_wrapper',
                 'PRECICE', 'MPICXX', 'PYLIB', 'STDCXX', 'RT', 'ZLIB']
-    utests(bld = bld, use = test_dep, coco=True)
+    utests(bld = bld, use = test_dep, preprocessor='coco')
 
     if bld.env.LIB_FFTW3:
        utests(bld = bld, use = test_dep, path = 'utests/with_fftw')
 
 
-# clean output files 
+# clean output files
 # add different extension format to remove
 # by extending outputfiles list using outfiles.extend(glob.glob('*.yourfileext')
 def cleanoutput(ctx):
@@ -164,10 +173,3 @@ def cleanoutput(ctx):
     outputfiles.extend(glob.glob('*.vtk'))
     for output in outputfiles:
         os.remove(output)
-
-#clean build directory and coco completely to create the build from scratch
-def cleanall(ctx):
-    from waflib import Options
-    Options.commands = ['distclean'] + Options.commands
-    ctx.exec_command('rm coco')
-    

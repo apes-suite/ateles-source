@@ -17,7 +17,7 @@
 ! OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 ! **************************************************************************** !
 
-?? include 'treelm/source/deriveMacros.inc'
+?? include 'tem/source/deriveMacros.inc'
 !> Routines to derive quantities from the state in the Euler equation system.
 module atl_eqn_filNvrStk_derive_module
   use, intrinsic :: iso_c_binding,  only: c_f_pointer

@@ -8,7 +8,7 @@ nElems = 128
 ------------------------------------------
 tmax= 5 * 1e-06
 -- global simulation options
-simulation_name='ateles' 
+simulation_name='ateles'
 --wallclock = 2*60*60 - 4*60
 sim_control = {
              time_control = {
@@ -21,44 +21,46 @@ sim_control = {
 
 check = {interval = 1}
 ---- Restart settings
-NOrestart = { 
+NOrestart = {
  -- read = './restart/ateles_lastHeader.lua',
   write = './restart/',
   time_control = {
-    min = 0, 
+    min = 0,
     max = tmax,
     interval = tmax/20,
     align_trigger = {sim = true},
   },
 }
 
--- Segments for tracking-- 
-segments = math.ceil(1.0/(1/nElems)) * (degree +1) * 4
+-- Mesh definition --
+mesh = {
+  predefined = 'line_bounded',
+  origin = {0.0},
+  length = 1.0,
+  element_count = nElems
+}
+
+-- Segments for tracking--
+segments = math.ceil(mesh.length*nElems) * (degree + 1) * 4
+eps = mesh.length / segments * 1.e-6
 
 -- tracking --
 tracking = {
   { label = 'line',
     variable = {'density', 'pressure', 'velocity'},
     shape = {kind='canoND',
-    object = { origin = {0.0, 0.0, 0.0},
-               vec = {1.0, 0.0, 0.0},
-               segments = {segments, segments, segments}},
+    object = { origin = {0.0+eps, 0.0, 0.0},
+               vec = {1.0-2*eps, 0.0, 0.0},
+               segments = {segments}},
      },
    time_control = {
-   min = 0, 
+   min = 0,
    max = tmax,
    interval = tmax
   },
     folder = './',
     output = {format = 'asciiSpatial', use_get_point = true}
   },
-}
--- Mesh definitions --
-mesh = {
-  predefined = 'line_bounded',
-  origin = {0.0},
-  length = 1.0,
-  element_count = nElems
 }
 
 --physical data
@@ -70,7 +72,7 @@ press = 1.0e5
 xmin = 0.4
 xmax = 0.44
 
-temp = press/(dens*(1.0/1.4)) 
+temp = press/(dens*(1.0/1.4))
 vel_init = 0.0
 c = math.sqrt((press*gamma)/dens)
 u = velocityX
@@ -78,14 +80,14 @@ a = - (gamma/(2*c^2))*((4*c^2/gamma)+(gamma + 1) * u^2)
 b = (gamma/(2*c^2))* ((2*c^2/gamma) - u^2*(gamma - 1))
 p_ratio1 = -a/2 + math.sqrt((a/2)^2 - b)
 p_ratio2 = -a/2 - math.sqrt((a/2)^2 - b)
-density_ratio = (1 + ((gamma + 1)/(gamma - 1 ))* 
-  math.max(p_ratio1,p_ratio2))/(((gamma + 1)/(gamma -1))+ 
+density_ratio = (1 + ((gamma + 1)/(gamma - 1 ))*
+  math.max(p_ratio1,p_ratio2))/(((gamma + 1)/(gamma -1))+
   math.max(p_ratio1,p_ratio2))
 
 densL = density_ratio * dens
 pressL = math.max(p_ratio1,p_ratio2) * press
 
-temperature_ratio = (1 +(pressL - press)/press ) * 
+temperature_ratio = (1 +(pressL - press)/press ) *
   ((2*gamma + (gamma-1)*((pressL-press)/press))/
   (2*gamma + (gamma+1)*((pressL - press)/press)))
 tempL = temperature_ratio * temp
@@ -95,9 +97,9 @@ function inside_piston(x,y,z,t)
   xb = xmax + velocityX * t
   if (xa <= x and x <= xb ) then
     return true
-  else 
+  else
     return false
-  end 
+  end
 end
 
 function velocityRelax(x,y,z,t)
@@ -112,9 +114,9 @@ function temperature(x,y,z,t)
     return temp
   elseif (x >(xa + diff_half) and x<=xb) then
     return tempL
-  else 
+  else
     return temp
-  end  
+  end
 end
 
 function characteristic(x,y,z,t)
@@ -126,7 +128,7 @@ function characteristic(x,y,z,t)
 end
 dx = 0.00000001
 variable = {
-  { 
+  {
     name = 'Xi',
     ncomponents = 1,
     vartype = "st_fun",
@@ -148,7 +150,7 @@ variable = {
       }
     }
   },
-  { 
+  {
     name = 'relax_velocity',
     ncomponents = 1,
     vartype = "st_fun",
@@ -170,7 +172,7 @@ variable = {
       }
     }
   },
-  { 
+  {
     name = 'relax_temperatur',
     ncomponents = 1,
     vartype = "st_fun",
@@ -198,7 +200,7 @@ timing_file = 'timing.res'         -- the filename of the timing results
 
 phi = 1.0
 beta = 1e-6
-eta_v = phi^2 * beta^2 
+eta_v = phi^2 * beta^2
 eta_t = 0.4 * phi * beta
 -- Equation definitions --
 equation = {
@@ -228,7 +230,7 @@ scheme = {
     m = degree,
   },
   stabilization = {
-  
+
   {
     name = 'spectral_viscosity',
     alpha = 36,
@@ -251,7 +253,7 @@ scheme = {
     steps = 4,
     control = {
       name = 'cfl',
-      cfl = 0.2, 
+      cfl = 0.2/2,
     },
   },
 }
@@ -259,7 +261,7 @@ scheme = {
 projection = {
   kind = 'l2p',
   material = {
-    factor = 3.0 
+    factor = 3.0
     },
 }
 vel_init = 0.0
@@ -277,7 +279,7 @@ pressL = math.max(p_ratio1,p_ratio2) * press
 ushock= (u/c)/(1 - density_ratio^(-1))* c
 velocity_2 = ushock - u
 velocity_1 = ushock
-x_position = 0.44 + ushock*tmax 
+x_position = 0.44 + ushock*tmax
 
 -- Initial condition
 function iniVel(x,y,z,t)
@@ -305,8 +307,8 @@ function inidens(x,y,z,t)
 end
 
 initial_condition = {
-  density = inidens, 
-  pressure = inipress, 
+  density = inidens,
+  pressure = inipress,
   velocity = iniVel,
 }
 
