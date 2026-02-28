@@ -7,6 +7,7 @@
 ! Copyright (c) 2016-2017 Tobias Girresser <tobias.girresser@student.uni-siegen.de>
 ! Copyright (c) 2017 Daniel Petró <daniel.petro@student.uni-siegen.de>
 ! Copyright (c) 2018 Neda Ebrahimi Pour <neda.epour@uni-siegen.de>
+! Copyright (c) 2025 Swagat Kumar Nayak <swagat.nayak@dlr.de>
 !
 ! Permission to use, copy, modify, and distribute this software for any
 ! purpose with or without fee is hereby granted, provided that the above
@@ -71,8 +72,8 @@ module atl_eqn_euler_var_module
     &                                    atl_machNumber_getElement,   &
     &                                    atl_KineticEnergy_getPoint,  &
     &                                    atl_kineticEnergy_getElement,&
-    &                                    atl_enstrophy_getPoint,  &
-    &                                    atl_enstrophy_getElement,&
+    &                                    atl_enstrophy_getPoint,      &
+    &                                    atl_enstrophy_getElement,    &
     &                                    atl_vorticity_getPoint,      &
     &                                    atl_vorticity_getElement,    &
     &                                    atl_qCriterion_getPoint,     &

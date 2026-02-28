@@ -6,6 +6,7 @@
 ! Copyright (c) 2016 Tobias Girresser <tobias.girresser@student.uni-siegen.de>
 ! Copyright (c) 2017 Kannan Masilamani <kannan.masilamani@uni-siegen.de>
 ! Copyright (c) 2017 Daniel Petró <daniel.petro@student.uni-siegen.de>
+! Copyright (c) 2025 Swagat Kumar Nayak <swagat.nayak@dlr.de>
 !
 ! Permission to use, copy, modify, and distribute this software for any
 ! purpose with or without fee is hereby granted, provided that the above
@@ -1226,8 +1227,8 @@ contains
 
   end subroutine atl_enstrophy_getPoint
 
-  subroutine atl_deriveEnstrophy(fun, varsys, tree, iElem, elemPos,    &
-    &                                          nodalInput, nodalRes        )
+  subroutine atl_deriveEnstrophy(fun, varsys, tree, iElem, elemPos, &
+    &                                          nodalInput, nodalRes )
     ! --------------------------------------------------------------------------
     !> Description of the method to obtain the variables, here some preset
     !! values might be stored, like the space time function to use or the
@@ -1268,8 +1269,8 @@ contains
 
   end subroutine atl_deriveEnstrophy
 
-  subroutine atl_enstrophy_getElement(fun, varsys, elempos, time, tree, nElems,&
-    &                                    nDofs, res                            )
+  subroutine atl_enstrophy_getElement(fun, varsys, elempos, time, tree, &
+    &                                 nElems, nDofs, res                )
     ! --------------------------------------------------------------------------
     !> Description of the method to obtain the variables, here some preset
     !! values might be stored, like the space time function to use or the
