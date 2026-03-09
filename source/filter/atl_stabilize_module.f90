@@ -845,7 +845,12 @@ contains
     allocate( hatDens(nQuadPoints))
     allocate( t_vec(nQuadPoints ))
 
+    !$OMP PARALLEL DEFAULT( SHARED ), &
+    !$OMP PRIVATE( iElem, iPoint, iVar, i, mean, minDens, hatDens ), &
+    !$OMP PRIVATE( theta_1, theta_2, momSq, tmpPressure, pressMean, t_vec ), &
+    !$OMP PRIVATE( modalCoeffs, pointVal, limitedPntVal )
 
+    !$OMP DO
     elemLoop: do iElem = 1, mesh%descriptor%elem%nElems(eT_fluid)
 
       ! get the modal coefficients of the current cell (for all variables
@@ -907,6 +912,7 @@ contains
             t_vec(iPoint) = 1.0_rk
           end if
         end do
+
         theta_2 = minval(t_vec)
 
         do i=lbound(limitedPntVal, 1),ubound(limitedPntVal,1)
@@ -947,7 +953,9 @@ contains
       end if highmean
 
     end do elemLoop
+    !$OMP END DO
 
+    !$OMP END PARALLEL
 
   end subroutine atl_cons_positivity_preserv
 

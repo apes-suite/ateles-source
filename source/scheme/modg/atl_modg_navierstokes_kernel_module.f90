@@ -103,6 +103,9 @@ contains
     integer :: iPoint
     integer :: rot(5), derRot(3)
     ! -------------------------------------------------------------------- !
+    !$OMP PARALLEL DEFAULT(shared) &
+    !$OMP PRIVATE(iPoint, rot, derRot)
+
 
     ! get the rotation for the physical flux calculation in y direction
     rot = equation%varRotation(iDir)%varTransformIndices(1:5)
@@ -112,6 +115,7 @@ contains
 
 
     ! Calculate the physical flux point by point within this cell
+    !$OMP DO
     do iPoint = 1, poly_proj%body_3D%nquadpoints
       scheme_min%temp_nodal(iPoint,rot,1) = atl_physFluxEuler(                &
         & state        = nodal_data(iPoint,rot),                              &
@@ -122,8 +126,10 @@ contains
         &                                     %materialDat(iElem, 1, iDir+1), &
         & porosity     = equation%euler%porosity                              )
     end do
+    !$OMP END DO
 
     ! Calculate viscous physical flux point by point within this cell
+    !$OMP DO
     do iPoint = 1, poly_proj%body_3D%nquadpoints
       scheme_min%temp_nodal(iPoint,rot,2) = atl_viscPhysFluxNavierStokes( &
         & state          = nodal_data(iPoint,rot),                        &
@@ -133,9 +139,12 @@ contains
         & thermCond      = equation%NavierStokes%therm_cond,              &
         & heatCap        = equation%euler%cv                              )
     end do
+    !$OMP END DO
 
     ! Add up the nodal data
     nodal_res(:,:) = scheme_min%temp_nodal(:,:,1) - scheme_min%temp_nodal(:,:,2)
+
+    !$OMP END PARALLEL
 
 
   end subroutine atl_modg_navierstokes_physFlux_const
@@ -264,6 +273,9 @@ contains
     integer :: rot(5), derRot(3)
     real(kind=rk) :: penalization(poly_proj%body_3D%nquadpoints)
     ! -------------------------------------------------------------------- !
+    !$OMP PARALLEL DEFAULT(shared) &
+    !$OMP PRIVATE(iPoint, rot, derRot, penalization)
+
     ! get correct amount of quadrature points and degree due to projection
     ! method. oversamp_dof and oversamp_degree is used for the oversampling
     ! loop
@@ -277,7 +289,7 @@ contains
     derRot = equation%varRotation(iDir)%derTransformIndices(2:4) &
       &        - equation%varRotation(iDir)%derTransformIndices(1)
 
-
+    !$OMP DO
     do iPoint = 1, poly_proj%body_3D%nquadpoints
       scheme_min%temp_nodal(iPoint,rot,1) = atl_physFluxEuler(        &
         & state        = nodal_data(iPoint,rot),                      &
@@ -288,7 +300,9 @@ contains
         &                        %elemMaterialData(2)                 &
         &                        %materialDat(iElem, iPoint, iDir + 1))
     end do
+    !$OMP END DO
 
+    !$OMP DO
     do iPoint = 1, poly_proj%body_3D%nquadpoints
       scheme_min%temp_nodal(iPoint,rot,2) = atl_viscPhysFluxNavierStokes( &
         & state          = nodal_data(iPoint,rot),                        &
@@ -298,11 +312,13 @@ contains
         & thermCond      = equation%NavierStokes%therm_cond,              &
         & heatCap        = equation%euler%cv                              )
     end do
+    !$OMP END DO
 
     ! Add up the nodal data
     nodal_res(:,:) =  scheme_min%temp_nodal(:,:,1)   &
       &                 - scheme_min%temp_nodal(:,:,2)
 
+    !$OMP END PARALLEL
 
   end subroutine atl_modg_navierstokes_physFlux_nonconst
   ! ************************************************************************ !
