@@ -35,7 +35,8 @@ def configure(conf):
             if fenv.FC_NAME == 'GFORTRAN':
                 fenv.FCFLAGS.append('-Wno-unused-dummy-argument')
                 fenv.FCFLAGS.append('-Wno-uninitialized')
-                fenv.FCFLAGS.append('-fmax-stack-var-size=131072')
+                if not conf.options.openmp:
+                    fenv.FCFLAGS.append('-fmax-stack-var-size=131072')
 
     Logs.warn('Ateles modified flags:')
     Logs.warn('Default flags: {0}'.format(' '.join(conf.all_envs[''].FCFLAGS)))
