@@ -30,6 +30,8 @@ The following example setups are available:
 * [shear hat](shear_hat): a simple setup with an initial linear y-velocity
   profile left and right of the x-axis (no variation in z) with periodic
   boundary conditions all around.
-* [shear tube](shear tube): this prescribes a cylindrical jet along the
+* [shear tube](shear_tube): this prescribes a cylindrical jet along the
   x-axis in a medium at rest and checks thereby the momentum transfer across
   the resulting shear layer. Again, boundary conditions are all periodic.
+* [Taylor-Green Vortex](tgv): the Taylor-Green Vortex with a fully periodic
+  cubical domain
